@@ -226,11 +226,11 @@ class JellyfinService:
         if effective_uid:
             url = f"{self.base_url}/Users/{effective_uid}/Items"
             params = {
-                "IncludeItemTypes": "Series",
+                "IncludeItemTypes": "Series,Episode",
                 "Recursive": "true",
                 "SortBy": "DateCreated,SortName",
                 "SortOrder": "Descending",
-                "Fields": "Overview,ProductionYear,CommunityRating,Genres,BackdropImageTags",
+                "Fields": "Overview,ProductionYear,CommunityRating,Genres,BackdropImageTags,SeriesId,SeriesName,SeasonName,IndexNumber",
                 "Limit": limit,
                 "StartIndex": offset
             }
@@ -239,19 +239,26 @@ class JellyfinService:
                 async with httpx.AsyncClient(timeout=10.0) as client:
                     resp = await client.get(url, params=params, headers=headers)
                     if resp.status_code == 200:
-                        data = resp.json()
-                        items = [self._map_item(i) for i in data.get("Items", [])]
+                        raw_items = resp.json().get("Items", [])
+                        series_ids = {s["Id"] for s in raw_items if s.get("Type") == "Series"}
+                        for i in raw_items:
+                            if i.get("Type") == "Series":
+                                items.append(self._map_item(i))
+                            elif i.get("Type") == "Episode":
+                                # Include standalone episodes whose parent series is not listed
+                                if not i.get("SeriesId") or i.get("SeriesId") not in series_ids:
+                                    items.append(self._map_item(i))
             except Exception as e:
                 logger.warning(f"Error fetching user series: {e}")
 
         if not items:
             url_admin = f"{self.base_url}/Items"
             params_admin = {
-                "IncludeItemTypes": "Series",
+                "IncludeItemTypes": "Series,Episode",
                 "Recursive": "true",
                 "SortBy": "DateCreated,SortName",
                 "SortOrder": "Descending",
-                "Fields": "Overview,ProductionYear,CommunityRating,Genres,BackdropImageTags",
+                "Fields": "Overview,ProductionYear,CommunityRating,Genres,BackdropImageTags,SeriesId,SeriesName,SeasonName,IndexNumber",
                 "Limit": limit,
                 "StartIndex": offset
             }
@@ -259,8 +266,14 @@ class JellyfinService:
                 async with httpx.AsyncClient(timeout=10.0) as client:
                     resp = await client.get(url_admin, params=params_admin, headers=self._get_auth_header())
                     if resp.status_code == 200:
-                        data = resp.json()
-                        items = [self._map_item(i) for i in data.get("Items", [])]
+                        raw_items = resp.json().get("Items", [])
+                        series_ids = {s["Id"] for s in raw_items if s.get("Type") == "Series"}
+                        for i in raw_items:
+                            if i.get("Type") == "Series":
+                                items.append(self._map_item(i))
+                            elif i.get("Type") == "Episode":
+                                if not i.get("SeriesId") or i.get("SeriesId") not in series_ids:
+                                    items.append(self._map_item(i))
             except Exception as e:
                 logger.warning(f"Error fetching server-level series: {e}")
         return items
@@ -413,9 +426,9 @@ class JellyfinService:
         params = {
             "SearchTerm": query,
             "Recursive": "true",
-            "IncludeItemTypes": "Movie,Series",
+            "IncludeItemTypes": "Movie,Series,Episode",
             "Limit": 20,
-            "Fields": "Overview,ProductionYear,CommunityRating,Genres,RunTimeTicks,BackdropImageTags"
+            "Fields": "Overview,ProductionYear,CommunityRating,Genres,RunTimeTicks,BackdropImageTags,SeriesId,SeriesName,SeasonName,IndexNumber"
         }
         if effective_uid:
             url = f"{self.base_url}/Users/{effective_uid}/Items"

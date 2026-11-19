@@ -58,10 +58,10 @@ export function MediaCard({ item, onSelect, aspect = 'poster' }: MediaCardProps)
         </div>
       )}
 
-      {/* Series badge */}
-      {item.type === 'Series' && (
+      {/* Series or Episode badge */}
+      {(item.type === 'Series' || item.type === 'Episode') && (
         <div class="absolute top-2 left-2 bg-[#0e141d]/95 px-1.5 py-0.5 rounded text-[10px] font-bold font-mono text-cyan-400 border border-cyan-800/60">
-          SERIE
+          {item.type === 'Series' ? 'SERIE' : 'EPISODIO'}
         </div>
       )}
 

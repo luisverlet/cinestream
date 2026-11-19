@@ -102,7 +102,7 @@ export function MediaDetailModal({ item, onClose, onPlay, onReplaceMedia, onMedi
             <div class="flex-1">
               <div class="flex flex-wrap items-center gap-2 mb-2">
                 <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-[#1a2b3c] text-cyan-300 border border-cyan-700/60 font-mono">
-                  {item.type === 'Movie' ? 'Película' : 'Serie'}
+                  {item.type === 'Movie' ? 'Película' : item.type === 'Episode' ? 'Episodio' : 'Serie'}
                 </span>
                 {item.year && <span class="text-xs text-slate-300 font-semibold">{item.year}</span>}
                 {item.community_rating && (
