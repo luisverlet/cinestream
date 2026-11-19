@@ -7,18 +7,18 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: '#090d16',
-        surface: '#111827',
-        'surface-elevated': '#1f293d',
-        accent: '#10b981', // Emerald 500
-        'accent-hover': '#34d399', // Emerald 400
+        background: '#09090b',
+        surface: '#121215',
+        'surface-elevated': '#18181b',
+        'surface-border': '#27272a',
       },
       spacing: {
         'tv-x': '4vw',
         'tv-y': '3vh',
       },
-      boxShadow: {
-        'focus-glow': '0 0 25px rgba(16, 185, 129, 0.45)',
+      fontFamily: {
+        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'monospace'],
       }
     },
   },

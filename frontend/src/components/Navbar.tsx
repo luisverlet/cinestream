@@ -13,7 +13,6 @@ export function Navbar({ currentView, onNavigate, onLogout, activeDownloads, sto
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const downloadingCount = activeDownloads.filter((t) => t.progress < 100).length;
 
-  // Close mobile menu on Escape key
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isMobileMenuOpen) {
@@ -35,38 +34,38 @@ export function Navbar({ currentView, onNavigate, onLogout, activeDownloads, sto
   };
 
   return (
-    <header class="sticky top-0 z-40 bg-[#090d16] border-b border-slate-800 px-3 sm:px-[4vw] py-2.5 sm:py-3 w-full max-w-full shadow-lg">
-      <div class="flex items-center justify-between gap-2 max-w-7xl mx-auto w-full">
+    <header class="sticky top-0 z-40 bg-[#09090b] border-b border-zinc-800/90 px-4 sm:px-[4vw] py-2.5 sm:py-3 w-full max-w-full">
+      <div class="flex items-center justify-between gap-3 max-w-7xl mx-auto w-full">
         {/* Brand */}
         <div
-          class="flex items-center gap-2 sm:gap-3 cursor-pointer group flex-none select-none"
+          class="flex items-center gap-2.5 cursor-pointer group flex-none select-none"
           onClick={() => handleNavClick('home')}
         >
-          <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center shadow-lg shadow-emerald-500/20 group-hover:scale-105 transition-transform flex-none">
-            <svg class="w-4 h-4 sm:w-5 sm:h-5 text-slate-950 fill-current ml-0.5" viewBox="0 0 24 24">
+          <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-md bg-zinc-900 border border-zinc-700/80 flex items-center justify-center text-zinc-100 flex-none group-hover:border-zinc-500 transition-colors">
+            <svg class="w-3.5 h-3.5 fill-current ml-0.5 text-zinc-200" viewBox="0 0 24 24">
               <polygon points="5 3 19 12 5 21 5 3" />
             </svg>
           </div>
-          <div class="flex flex-col">
-            <span class="text-base sm:text-lg font-black tracking-wider text-white">
-              VERLET<span class="text-emerald-400">CINE</span>
+          <div class="flex items-baseline gap-2">
+            <span class="text-sm sm:text-base font-semibold tracking-tight text-zinc-100">
+              Verlet Cine
             </span>
-            <span class="hidden sm:block text-[10px] uppercase font-mono tracking-widest text-slate-400 -mt-1">
-              Personal Streamer
+            <span class="hidden sm:inline text-[11px] font-mono text-zinc-500 tracking-normal">
+              streamer
             </span>
           </div>
         </div>
 
         {/* ─── DESKTOP & SMART TV NAVIGATION (>= md) ─── */}
-        <nav class="hidden md:flex items-center gap-1.5 lg:gap-3 flex-none">
+        <nav class="hidden md:flex items-center gap-1 flex-none bg-zinc-950/80 p-1 rounded-lg border border-zinc-800/70">
           {/* Inicio */}
           <button
             data-nav="item"
             onClick={() => handleNavClick('home')}
-            class={`px-3 py-2 rounded-xl text-xs md:text-sm font-semibold transition-all cursor-pointer ${
+            class={`px-3 py-1.5 rounded-md text-xs sm:text-sm font-medium transition-colors cursor-pointer ${
               currentView === 'home'
-                ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20 font-bold'
-                : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+                ? 'bg-zinc-800 text-zinc-100 shadow-sm border border-zinc-700/60'
+                : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/60'
             }`}
           >
             Inicio
@@ -76,30 +75,30 @@ export function Navbar({ currentView, onNavigate, onLogout, activeDownloads, sto
           <button
             data-nav="item"
             onClick={() => handleNavClick('top15')}
-            class={`px-3 py-2 rounded-xl text-xs md:text-sm font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
+            class={`px-3 py-1.5 rounded-md text-xs sm:text-sm font-medium transition-colors flex items-center gap-1.5 cursor-pointer ${
               currentView === 'top15'
-                ? 'bg-amber-400 text-slate-950 font-black shadow-md shadow-amber-400/20'
-                : 'text-amber-300 hover:text-white hover:bg-slate-800/60'
+                ? 'bg-zinc-800 text-zinc-100 shadow-sm border border-zinc-700/60'
+                : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/60'
             }`}
-            title="Top 15 mejores películas por género y subgénero"
+            title="Top 15 por género y subgénero"
           >
-            <span class="text-sm">⭐</span>
             <span>Top 15</span>
-            <span class="font-mono text-[11px] opacity-80">IMDb</span>
+            <span class="font-mono text-[10px] text-zinc-400 bg-zinc-900 px-1 py-0.2 rounded border border-zinc-800">
+              IMDb
+            </span>
           </button>
 
-          {/* Mi Lista: Por Ver & Vistas */}
+          {/* Mi Lista */}
           <button
             data-nav="item"
             onClick={() => handleNavClick('watchlist')}
-            class={`px-3 py-2 rounded-xl text-xs md:text-sm font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
+            class={`px-3 py-1.5 rounded-md text-xs sm:text-sm font-medium transition-colors flex items-center gap-1.5 cursor-pointer ${
               currentView === 'watchlist'
-                ? 'bg-purple-600 text-white font-black shadow-md shadow-purple-900/30'
-                : 'text-purple-300 hover:text-white hover:bg-slate-800/60'
+                ? 'bg-zinc-800 text-zinc-100 shadow-sm border border-zinc-700/60'
+                : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/60'
             }`}
-            title="Películas y series por ver y vistas (Multi-usuario)"
+            title="Películas y series por ver y vistas"
           >
-            <span class="text-sm">🔖</span>
             <span>Mi Lista</span>
           </button>
 
@@ -107,91 +106,88 @@ export function Navbar({ currentView, onNavigate, onLogout, activeDownloads, sto
           <button
             data-nav="item"
             onClick={() => handleNavClick('search')}
-            class={`px-3 py-2 rounded-xl text-xs md:text-sm font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
+            class={`px-3 py-1.5 rounded-md text-xs sm:text-sm font-medium transition-colors flex items-center gap-1.5 cursor-pointer ${
               currentView === 'search'
-                ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20 font-bold'
-                : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+                ? 'bg-zinc-800 text-zinc-100 shadow-sm border border-zinc-700/60'
+                : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/60'
             }`}
           >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            <svg class="w-3.5 h-3.5 text-zinc-400" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
             <span>Buscar</span>
-            <span class="hidden lg:inline">& Torrents</span>
           </button>
 
           {/* Descargas */}
           <button
             data-nav="item"
             onClick={() => handleNavClick('downloads')}
-            class={`relative px-3 py-2 rounded-xl text-xs md:text-sm font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
+            class={`relative px-3 py-1.5 rounded-md text-xs sm:text-sm font-medium transition-colors flex items-center gap-1.5 cursor-pointer ${
               currentView === 'downloads'
-                ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20 font-bold'
-                : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+                ? 'bg-zinc-800 text-zinc-100 shadow-sm border border-zinc-700/60'
+                : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/60'
             }`}
           >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            <svg class="w-3.5 h-3.5 text-zinc-400" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
             </svg>
             <span>Descargas</span>
             {downloadingCount > 0 && (
-              <span class="px-1.5 py-0.2 text-[10px] font-bold bg-emerald-400 text-slate-950 rounded-full animate-pulse ml-0.5">
+              <span class="px-1.5 py-0.2 text-[10px] font-mono font-medium bg-zinc-700 text-zinc-100 rounded ml-0.5 border border-zinc-600">
                 {downloadingCount}
               </span>
             )}
           </button>
+        </nav>
 
-          {/* Storage Badge */}
+        {/* Right side controls: Storage + Logout */}
+        <div class="hidden md:flex items-center gap-2">
           {storageInfo && (
             <div
-              class={`items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-mono font-medium transition-all ${
+              class={`items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-mono font-normal transition-colors border ${
                 storageInfo.is_critical
-                  ? 'flex bg-rose-500/20 text-rose-300 border border-rose-500/50 animate-pulse'
+                  ? 'flex bg-rose-950/40 text-rose-300 border-rose-800/80'
                   : storageInfo.is_low_space
-                  ? 'flex bg-amber-500/20 text-amber-300 border border-amber-500/40'
-                  : 'hidden xl:flex bg-slate-800/80 text-slate-300 border border-slate-700/50'
+                  ? 'flex bg-amber-950/40 text-amber-300 border-amber-800/80'
+                  : 'hidden xl:flex bg-zinc-900 text-zinc-400 border-zinc-800'
               }`}
-              title={`Almacenamiento: ${storageInfo.free_gb} GB libres de ${storageInfo.total_gb} GB (${storageInfo.used_percentage}% usado)`}
+              title={`Disco: ${storageInfo.free_gb} GB libres de ${storageInfo.total_gb} GB (${storageInfo.used_percentage}% ocupado)`}
             >
-              <span>{storageInfo.is_critical ? '⚠️' : storageInfo.is_low_space ? '⚠️' : '💾'}</span>
-              <span>{storageInfo.free_gb} GB</span>
+              <span class="text-[10px] text-zinc-500 uppercase">Disco</span>
+              <span class="text-zinc-200">{storageInfo.free_gb} GB</span>
             </div>
           )}
 
-          {/* Logout */}
           <button
             data-nav="item"
             onClick={handleLogoutClick}
             title="Cerrar sesión"
-            class="p-2 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-slate-800/60 transition-colors ml-0.5 cursor-pointer"
+            class="p-1.5 rounded-md text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900 border border-transparent hover:border-zinc-800 transition-colors cursor-pointer"
           >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
             </svg>
           </button>
-        </nav>
+        </div>
 
-        {/* ─── MOBILE CONTROLS (< md): QUICK ICONS + HAMBURGER BUTTON ─── */}
+        {/* ─── MOBILE CONTROLS (< md) ─── */}
         <div class="flex md:hidden items-center gap-2">
-          {/* Active downloads pill on mobile (direct shortcut) */}
           {downloadingCount > 0 && (
             <button
               data-nav="item"
               onClick={() => handleNavClick('downloads')}
-              class="px-2.5 py-1.5 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-bold flex items-center gap-1.5 animate-pulse cursor-pointer"
+              class="px-2.5 py-1 rounded-md bg-zinc-900 border border-zinc-800 text-zinc-200 text-xs font-medium flex items-center gap-1.5 cursor-pointer"
               title="Descargas activas"
             >
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              <svg class="w-3.5 h-3.5 text-zinc-400" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
               </svg>
-              <span class="font-mono text-[11px] font-black">{downloadingCount}</span>
+              <span class="font-mono text-[11px]">{downloadingCount}</span>
             </button>
           )}
 
-          {/* Storage Alert on Mobile (only if low or critical) */}
           {storageInfo && (storageInfo.is_critical || storageInfo.is_low_space) && (
-            <div class="px-2 py-1 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[11px] font-mono font-bold flex items-center gap-1">
-              <span>⚠️</span>
+            <div class="px-2 py-1 rounded-md bg-amber-950/40 text-amber-300 border border-amber-800/80 text-[11px] font-mono flex items-center gap-1">
               <span>{storageInfo.free_gb}G</span>
             </div>
           )}
@@ -200,23 +196,21 @@ export function Navbar({ currentView, onNavigate, onLogout, activeDownloads, sto
           <button
             data-nav="item"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            class={`w-10 h-10 rounded-xl flex items-center justify-center transition-all cursor-pointer border ${
+            class={`w-9 h-9 rounded-md flex items-center justify-center transition-colors cursor-pointer border ${
               isMobileMenuOpen
-                ? 'bg-emerald-500 text-slate-950 border-emerald-400 shadow-lg shadow-emerald-500/30'
-                : 'bg-slate-800/90 text-slate-200 border-slate-700/80 hover:bg-slate-700 hover:text-white'
+                ? 'bg-zinc-800 text-zinc-100 border-zinc-700'
+                : 'bg-zinc-900 text-zinc-300 border-zinc-800 hover:text-white'
             }`}
             aria-label={isMobileMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
             aria-expanded={isMobileMenuOpen}
           >
             {isMobileMenuOpen ? (
-              /* Close Icon (✕) */
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
             ) : (
-              /* Hamburger Icon (☰) */
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M4 6h16M4 12h16M4 18h16" />
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             )}
           </button>
@@ -226,184 +220,120 @@ export function Navbar({ currentView, onNavigate, onLogout, activeDownloads, sto
       {/* ─── MOBILE DRAWER & BACKDROP (< md) ─── */}
       {isMobileMenuOpen && (
         <>
-          {/* Backdrop (Tapping closes menu) */}
           <div
-            class="fixed inset-0 top-[52px] sm:top-[57px] bg-black/85 z-40 md:hidden animate-fade-in"
+            class="fixed inset-0 top-[49px] bg-black/75 z-40 md:hidden"
             onClick={() => setIsMobileMenuOpen(false)}
           />
 
-          {/* Drawer Menu Panel with 100% Solid Opaque Background */}
           <div
-            class="fixed top-[52px] sm:top-[57px] left-0 right-0 w-full bg-[#090d16] border-b border-slate-700 shadow-2xl z-50 md:hidden px-4 py-4 space-y-2.5 max-h-[calc(100vh-3.5rem)] overflow-y-auto"
+            class="fixed top-[49px] left-0 right-0 w-full bg-[#09090b] border-b border-zinc-800 shadow-xl z-50 md:hidden px-4 py-3 space-y-1 max-h-[calc(100vh-3.5rem)] overflow-y-auto"
           >
-            {/* 1. Inicio */}
+            {/* Inicio */}
             <button
               data-nav="item"
               onClick={() => handleNavClick('home')}
-              class={`w-full p-3 rounded-2xl flex items-center justify-between text-left transition-all cursor-pointer border shadow-sm ${
+              class={`w-full p-2.5 rounded-md flex items-center justify-between text-left transition-colors cursor-pointer border ${
                 currentView === 'home'
-                  ? 'bg-emerald-500 text-slate-950 font-bold border-emerald-400 shadow-lg shadow-emerald-500/20'
-                  : 'bg-[#131c2e] text-white border-slate-700/80 hover:bg-[#1a253c]'
+                  ? 'bg-zinc-900 text-zinc-100 font-medium border-zinc-700'
+                  : 'bg-transparent text-zinc-400 border-transparent hover:bg-zinc-900/60 hover:text-zinc-200'
               }`}
             >
               <div class="flex items-center gap-3">
-                <div class={`w-9 h-9 rounded-xl flex items-center justify-center text-lg ${
-                  currentView === 'home' ? 'bg-black/20 text-slate-950' : 'bg-[#1d2942] border border-slate-700/60 text-emerald-400'
-                }`}>
-                  🏠
-                </div>
-                <div>
-                  <div class="text-sm font-bold">Inicio</div>
-                  <div class={`text-[11px] ${currentView === 'home' ? 'text-slate-950/80 font-medium' : 'text-slate-400'}`}>
-                    Películas y series en biblioteca
-                  </div>
-                </div>
+                <span class="text-xs font-mono text-zinc-500">01</span>
+                <span class="text-sm">Inicio</span>
               </div>
-              <span class="text-sm">→</span>
+              <span class="text-xs text-zinc-600 font-mono">Biblioteca</span>
             </button>
 
-            {/* 2. Top 15 IMDb */}
+            {/* Top 15 IMDb */}
             <button
               data-nav="item"
               onClick={() => handleNavClick('top15')}
-              class={`w-full p-3 rounded-2xl flex items-center justify-between text-left transition-all cursor-pointer border shadow-sm ${
+              class={`w-full p-2.5 rounded-md flex items-center justify-between text-left transition-colors cursor-pointer border ${
                 currentView === 'top15'
-                  ? 'bg-amber-400 text-slate-950 font-bold border-amber-300 shadow-lg shadow-amber-400/20'
-                  : 'bg-[#131c2e] text-white border-slate-700/80 hover:bg-[#1a253c]'
+                  ? 'bg-zinc-900 text-zinc-100 font-medium border-zinc-700'
+                  : 'bg-transparent text-zinc-400 border-transparent hover:bg-zinc-900/60 hover:text-zinc-200'
               }`}
             >
               <div class="flex items-center gap-3">
-                <div class={`w-9 h-9 rounded-xl flex items-center justify-center text-lg ${
-                  currentView === 'top15' ? 'bg-black/20 text-slate-950' : 'bg-[#1d2942] border border-slate-700/60 text-amber-300'
-                }`}>
-                  ⭐
-                </div>
-                <div>
-                  <div class="text-sm font-bold flex items-center gap-1.5">
-                    <span>Top 15 IMDb</span>
-                    <span class="text-[10px] px-1.5 py-0.2 rounded-md bg-amber-400/20 border border-amber-400/30 text-amber-300 font-mono">
-                      IMDb
-                    </span>
-                  </div>
-                  <div class={`text-[11px] ${currentView === 'top15' ? 'text-slate-950/80 font-medium' : 'text-slate-400'}`}>
-                    Mejores títulos por género y subgénero
-                  </div>
-                </div>
+                <span class="text-xs font-mono text-zinc-500">02</span>
+                <span class="text-sm">Top 15 IMDb</span>
               </div>
-              <span class="text-sm">→</span>
+              <span class="text-xs text-zinc-600 font-mono">Por géneros</span>
             </button>
 
-            {/* 3. Mi Lista (Nano & Vane) */}
+            {/* Mi Lista */}
             <button
               data-nav="item"
               onClick={() => handleNavClick('watchlist')}
-              class={`w-full p-3 rounded-2xl flex items-center justify-between text-left transition-all cursor-pointer border shadow-sm ${
+              class={`w-full p-2.5 rounded-md flex items-center justify-between text-left transition-colors cursor-pointer border ${
                 currentView === 'watchlist'
-                  ? 'bg-purple-600 text-white font-bold border-purple-500 shadow-lg shadow-purple-900/30'
-                  : 'bg-[#131c2e] text-white border-slate-700/80 hover:bg-[#1a253c]'
+                  ? 'bg-zinc-900 text-zinc-100 font-medium border-zinc-700'
+                  : 'bg-transparent text-zinc-400 border-transparent hover:bg-zinc-900/60 hover:text-zinc-200'
               }`}
             >
               <div class="flex items-center gap-3">
-                <div class={`w-9 h-9 rounded-xl flex items-center justify-center text-lg ${
-                  currentView === 'watchlist' ? 'bg-black/20 text-white' : 'bg-[#1d2942] border border-slate-700/60 text-purple-300'
-                }`}>
-                  🔖
-                </div>
-                <div>
-                  <div class="text-sm font-bold flex items-center gap-1.5">
-                    <span>Mi Lista Personal</span>
-                    <span class="text-[10px] px-1.5 py-0.2 rounded-md bg-purple-500/20 border border-purple-500/30 text-purple-300 font-bold">
-                      Multi-usuario
-                    </span>
-                  </div>
-                  <div class={`text-[11px] ${currentView === 'watchlist' ? 'text-purple-100 font-medium' : 'text-slate-400'}`}>
-                    Por Ver & Vistas con votos individuales
-                  </div>
-                </div>
+                <span class="text-xs font-mono text-zinc-500">03</span>
+                <span class="text-sm">Mi Lista</span>
               </div>
-              <span class="text-sm">→</span>
+              <span class="text-xs text-zinc-600 font-mono">Por ver & Vistas</span>
             </button>
 
-            {/* 4. Buscar & Torrents */}
+            {/* Buscar & Torrents */}
             <button
               data-nav="item"
               onClick={() => handleNavClick('search')}
-              class={`w-full p-3 rounded-2xl flex items-center justify-between text-left transition-all cursor-pointer border shadow-sm ${
+              class={`w-full p-2.5 rounded-md flex items-center justify-between text-left transition-colors cursor-pointer border ${
                 currentView === 'search'
-                  ? 'bg-emerald-500 text-slate-950 font-bold border-emerald-400 shadow-lg shadow-emerald-500/20'
-                  : 'bg-[#131c2e] text-white border-slate-700/80 hover:bg-[#1a253c]'
+                  ? 'bg-zinc-900 text-zinc-100 font-medium border-zinc-700'
+                  : 'bg-transparent text-zinc-400 border-transparent hover:bg-zinc-900/60 hover:text-zinc-200'
               }`}
             >
               <div class="flex items-center gap-3">
-                <div class={`w-9 h-9 rounded-xl flex items-center justify-center text-lg ${
-                  currentView === 'search' ? 'bg-black/20 text-slate-950' : 'bg-[#1d2942] border border-slate-700/60 text-emerald-400'
-                }`}>
-                  🔍
-                </div>
-                <div>
-                  <div class="text-sm font-bold">Buscar & Torrents</div>
-                  <div class={`text-[11px] ${currentView === 'search' ? 'text-slate-950/80 font-medium' : 'text-slate-400'}`}>
-                    Explora biblioteca y descarga torrents
-                  </div>
-                </div>
+                <span class="text-xs font-mono text-zinc-500">04</span>
+                <span class="text-sm">Buscar catálogo</span>
               </div>
-              <span class="text-sm">→</span>
+              <span class="text-xs text-zinc-600 font-mono">Local & Red</span>
             </button>
 
-            {/* 5. Descargas */}
+            {/* Descargas */}
             <button
               data-nav="item"
               onClick={() => handleNavClick('downloads')}
-              class={`w-full p-3 rounded-2xl flex items-center justify-between text-left transition-all cursor-pointer border shadow-sm ${
+              class={`w-full p-2.5 rounded-md flex items-center justify-between text-left transition-colors cursor-pointer border ${
                 currentView === 'downloads'
-                  ? 'bg-emerald-500 text-slate-950 font-bold border-emerald-400 shadow-lg shadow-emerald-500/20'
-                  : 'bg-[#131c2e] text-white border-slate-700/80 hover:bg-[#1a253c]'
+                  ? 'bg-zinc-900 text-zinc-100 font-medium border-zinc-700'
+                  : 'bg-transparent text-zinc-400 border-transparent hover:bg-zinc-900/60 hover:text-zinc-200'
               }`}
             >
               <div class="flex items-center gap-3">
-                <div class={`w-9 h-9 rounded-xl flex items-center justify-center text-lg ${
-                  currentView === 'downloads' ? 'bg-black/20 text-slate-950' : 'bg-[#1d2942] border border-slate-700/60 text-emerald-400'
-                }`}>
-                  📥
-                </div>
-                <div>
-                  <div class="text-sm font-bold flex items-center gap-1.5">
-                    <span>Descargas Activas</span>
-                    {downloadingCount > 0 && (
-                      <span class="px-1.5 py-0.2 rounded-full bg-emerald-400 text-slate-950 text-[10px] font-bold font-mono">
-                        {downloadingCount}
-                      </span>
-                    )}
-                  </div>
-                  <div class={`text-[11px] ${currentView === 'downloads' ? 'text-slate-950/80 font-medium' : 'text-slate-400'}`}>
-                    {downloadingCount > 0 ? `${downloadingCount} descarga(s) en curso` : 'Estado y cola de descargas'}
-                  </div>
-                </div>
+                <span class="text-xs font-mono text-zinc-500">05</span>
+                <span class="text-sm">Descargas</span>
               </div>
-              <span class="text-sm">→</span>
+              {downloadingCount > 0 ? (
+                <span class="px-2 py-0.5 text-[10px] font-mono bg-zinc-800 text-zinc-200 border border-zinc-700 rounded">
+                  {downloadingCount} activas
+                </span>
+              ) : (
+                <span class="text-xs text-zinc-600 font-mono">Inactivo</span>
+              )}
             </button>
 
-            {/* 6. Storage Status Panel */}
+            {/* Storage indicator */}
             {storageInfo && (
-              <div class="p-3 rounded-2xl bg-[#0e1422] border border-slate-700/90 text-xs space-y-2">
-                <div class="flex items-center justify-between">
-                  <span class="text-slate-400 flex items-center gap-1.5 font-semibold">
-                    <span>💾</span>
-                    <span>Almacenamiento del Servidor:</span>
-                  </span>
-                  <span class="font-mono text-white font-bold">
-                    {storageInfo.free_gb} GB libres ({storageInfo.total_gb} GB)
-                  </span>
+              <div class="pt-3 pb-1 px-1 border-t border-zinc-800/80">
+                <div class="flex items-center justify-between text-xs text-zinc-400 font-mono mb-1.5">
+                  <span>Almacenamiento servidor</span>
+                  <span class="text-zinc-200">{storageInfo.free_gb} GB libres</span>
                 </div>
-                {/* Progress bar */}
-                <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                <div class="w-full h-1 bg-zinc-800 rounded-full overflow-hidden">
                   <div
-                    class={`h-full rounded-full transition-all ${
+                    class={`h-full rounded-full ${
                       storageInfo.is_critical
                         ? 'bg-rose-500'
                         : storageInfo.is_low_space
                         ? 'bg-amber-400'
-                        : 'bg-emerald-500'
+                        : 'bg-zinc-400'
                     }`}
                     style={{ width: `${Math.min(100, Math.max(0, storageInfo.used_percentage))}%` }}
                   />
@@ -411,23 +341,17 @@ export function Navbar({ currentView, onNavigate, onLogout, activeDownloads, sto
               </div>
             )}
 
-            {/* 7. Cerrar Sesión */}
-            <button
-              data-nav="item"
-              onClick={handleLogoutClick}
-              class="w-full p-3 rounded-2xl bg-[#160f18] border border-rose-900/60 hover:bg-rose-950/40 text-rose-300 font-bold flex items-center justify-between text-left transition-all cursor-pointer text-xs shadow-sm"
-            >
-              <div class="flex items-center gap-3">
-                <div class="w-9 h-9 rounded-xl bg-rose-950/80 border border-rose-800/60 flex items-center justify-center text-base">
-                  🚪
-                </div>
-                <div>
-                  <div class="text-sm font-bold text-rose-400">Cerrar Sesión</div>
-                  <div class="text-[11px] text-slate-400">Salir de esta cuenta</div>
-                </div>
-              </div>
-              <span class="text-sm">→</span>
-            </button>
+            {/* Logout */}
+            <div class="pt-2 border-t border-zinc-800/80">
+              <button
+                data-nav="item"
+                onClick={handleLogoutClick}
+                class="w-full p-2.5 rounded-md text-left text-zinc-400 hover:text-rose-400 hover:bg-zinc-900 transition-colors text-xs font-medium flex items-center justify-between cursor-pointer"
+              >
+                <span>Cerrar sesión</span>
+                <span class="text-xs font-mono text-zinc-600">Salir →</span>
+              </button>
+            </div>
           </div>
         </>
       )}

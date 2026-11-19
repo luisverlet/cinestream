@@ -98,27 +98,25 @@ export function TopImdbView({ onSearchMovie }: TopImdbViewProps) {
         year: movie.year,
         imdb_rating: movie.rating,
         status: 'plan_to_watch',
-        user_nick: nick.trim() || undefined
+        notes: `Top 15 IMDb (${currentGenre.name} - ${currentSubgenre.name})`
       });
-      showToast(`📌 "${movie.title}" agregada a Por Ver`);
+      showToast(`Añadida a Por Ver: "${movie.title}"`);
       await fetchWatchlist();
     } catch (err: any) {
-      alert('Error: ' + (err.message || 'Error al agregar'));
+      alert('Error: ' + (err.message || 'Error'));
     }
   };
 
   // Confirm Mark as Watched
   const handleConfirmWatched = async () => {
     if (!markingMovie) return;
+    const trimmedNick = nick.trim() || 'Nano';
     try {
-      const trimmedNick = nick.trim() || 'Nano';
-      try {
-        localStorage.setItem(STORAGE_LAST_NICK_KEY, trimmedNick);
-      } catch {}
+      localStorage.setItem(STORAGE_LAST_NICK_KEY, trimmedNick);
 
-      const existingMatch = getWatchlistMatch(markingMovie);
-      if (existingMatch) {
-        await api.rateWatchlistItem(existingMatch.id, {
+      const existing = getWatchlistMatch(markingMovie);
+      if (existing) {
+        await api.rateWatchlistItem(existing.id, {
           user_nick: trimmedNick,
           rating: userRating
         });
@@ -135,7 +133,7 @@ export function TopImdbView({ onSearchMovie }: TopImdbViewProps) {
         });
       }
 
-      showToast(`✓ "${markingMovie.title}" calificada por ${trimmedNick} (${userRating}★)`);
+      showToast(`Calificada por ${trimmedNick} (${userRating}★): "${markingMovie.title}"`);
       setMarkingMovie(null);
       await fetchWatchlist();
     } catch (err: any) {
@@ -143,40 +141,31 @@ export function TopImdbView({ onSearchMovie }: TopImdbViewProps) {
     }
   };
 
-  const getRankBadgeStyle = (rank: number) => {
-    if (rank === 1) return 'bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black shadow-amber-400/25';
-    if (rank === 2) return 'bg-gradient-to-br from-slate-200 to-slate-400 text-slate-950 font-black shadow-slate-300/25';
-    if (rank === 3) return 'bg-gradient-to-br from-amber-600 to-amber-800 text-white font-black shadow-amber-600/25';
-    return 'bg-slate-800 text-slate-300 border border-slate-700 font-black';
-  };
-
   return (
-    <div class="px-3 sm:px-[4vw] py-5 sm:py-8 max-w-7xl mx-auto select-none w-full max-w-full overflow-x-hidden">
+    <div class="px-4 sm:px-[4vw] py-6 max-w-6xl mx-auto select-none w-full max-w-full overflow-x-hidden">
       {/* Header Banner */}
-      <div class="mb-6 sm:mb-8 text-center sm:text-left flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-slate-800 pb-5 sm:pb-6">
+      <div class="mb-6 flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-zinc-800 pb-5">
         <div>
-          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/10 border border-amber-400/30 text-amber-400 text-xs font-bold mb-2">
-            <span>⭐ IMDb TOP 15</span>
-            <span class="text-slate-400">•</span>
-            <span>Catálogo Ligero & Mi Lista</span>
+          <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded bg-zinc-900 border border-zinc-800 text-zinc-300 text-xs font-mono mb-2">
+            <span>Top 15 IMDb</span>
+            <span class="text-zinc-600">/</span>
+            <span class="text-zinc-400">Selección por géneros</span>
           </div>
-          <h1 class="text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight">
-            Top 15 IMDb por Géneros
+          <h1 class="text-xl sm:text-2xl md:text-3xl font-semibold text-zinc-100 tracking-tight">
+            Catálogo Editorial IMDb
           </h1>
-          <p class="text-xs sm:text-sm text-slate-400 mt-1 max-w-2xl">
-            Explora obras maestras, márcalas como <strong>Vistas</strong> con tu calificación en estrellas o agrégalas a tu lista <strong>Por Ver</strong>.
+          <p class="text-xs sm:text-sm text-zinc-400 mt-1 max-w-xl leading-relaxed">
+            Títulos clasificados por subgéneros cinematográficos. Puedes guardarlos en tu lista Por Ver o calificarlos directamente.
           </p>
         </div>
 
-        {/* Quick hint badge */}
-        <div class="hidden md:flex items-center gap-2 text-xs text-slate-400 bg-slate-900/90 border border-slate-800 px-3.5 py-2 rounded-xl">
-          <span class="text-emerald-400 font-bold">⚡ Carga instantánea:</span>
-          <span>Sin imágenes pesadas</span>
+        <div class="hidden md:flex items-center gap-2 text-xs font-mono text-zinc-400 bg-zinc-950 border border-zinc-800 px-3 py-1.5 rounded-md">
+          <span>Modo catálogo ligero</span>
         </div>
       </div>
 
-      {/* Main Genre Tabs (Horizontally scrollable on mobile) */}
-      <div class="flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar w-full max-w-full">
+      {/* Main Genre Tabs */}
+      <div class="flex items-center gap-1.5 overflow-x-auto pb-2 no-scrollbar w-full max-w-full">
         {IMDB_TOP_GENRES.map((genre) => {
           const isActive = genre.id === selectedGenreId;
           return (
@@ -184,13 +173,12 @@ export function TopImdbView({ onSearchMovie }: TopImdbViewProps) {
               key={genre.id}
               data-nav="item"
               onClick={() => handleSelectGenre(genre.id)}
-              class={`flex-none px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
+              class={`flex-none px-3.5 py-1.5 rounded-md text-xs sm:text-sm font-medium flex items-center gap-2 transition-colors cursor-pointer border ${
                 isActive
-                  ? 'bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/25 scale-[1.02]'
-                  : 'bg-slate-900/80 hover:bg-slate-800 text-slate-300 border border-slate-800'
+                  ? 'bg-zinc-800 text-zinc-100 border-zinc-700 shadow-sm'
+                  : 'bg-zinc-950 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900 border-zinc-800'
               }`}
             >
-              <span class="text-base sm:text-lg">{genre.icon}</span>
               <span>{genre.name}</span>
             </button>
           );
@@ -198,11 +186,11 @@ export function TopImdbView({ onSearchMovie }: TopImdbViewProps) {
       </div>
 
       {/* Subgenres Pills */}
-      <div class="mt-4 sm:mt-5 p-3 sm:p-4 rounded-2xl bg-slate-900/80 border border-slate-800/90">
-        <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
-          <span>Subgéneros de {currentGenre.name}:</span>
+      <div class="mt-3 p-3 rounded-md bg-zinc-950 border border-zinc-800">
+        <div class="text-[11px] font-mono text-zinc-500 uppercase tracking-wider mb-2">
+          Subgéneros de {currentGenre.name}:
         </div>
-        <div class="flex flex-wrap items-center gap-2">
+        <div class="flex flex-wrap items-center gap-1.5">
           {currentGenre.subgenres.map((sub) => {
             const isSubActive = sub.id === currentSubgenre.id;
             return (
@@ -213,13 +201,12 @@ export function TopImdbView({ onSearchMovie }: TopImdbViewProps) {
                   setSelectedSubgenreId(sub.id);
                   setExpandedMovieIndex(null);
                 }}
-                class={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
+                class={`px-2.5 py-1 rounded text-xs font-medium transition-colors cursor-pointer border ${
                   isSubActive
-                    ? 'bg-cyan-500 text-slate-950 font-black shadow-md shadow-cyan-500/20'
-                    : 'bg-slate-800/90 text-slate-300 hover:bg-slate-700/80 border border-slate-700/60'
+                    ? 'bg-zinc-800 text-zinc-100 border-zinc-700 shadow-sm'
+                    : 'bg-zinc-900 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-850 border-zinc-800/80'
                 }`}
               >
-                <span>{sub.icon}</span>
                 <span>{sub.name}</span>
               </button>
             );
@@ -227,34 +214,34 @@ export function TopImdbView({ onSearchMovie }: TopImdbViewProps) {
         </div>
 
         {/* Subgenre description */}
-        <p class="mt-3 text-xs text-slate-400 italic flex items-center gap-1.5 border-t border-slate-800/80 pt-2.5">
-          <span class="text-cyan-400 font-bold not-italic">ℹ Enfoque:</span>
+        <p class="mt-2.5 text-xs text-zinc-400 font-mono flex items-center gap-1.5 border-t border-zinc-800/80 pt-2">
+          <span class="text-zinc-500">Enfoque:</span>
           <span>{currentSubgenre.description}</span>
         </p>
       </div>
 
-      {/* Copied toast or feedback notice */}
+      {/* Copied toast / feedback notice */}
       {(copiedTitle || feedback) && (
-        <div class="fixed bottom-6 right-6 z-50 bg-emerald-600 text-slate-950 font-black px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-2 border border-emerald-400 text-xs animate-bounce">
+        <div class="fixed bottom-5 right-5 z-50 bg-zinc-900 text-zinc-100 text-xs px-3.5 py-2 rounded-md shadow-xl border border-zinc-700 flex items-center gap-2 font-mono">
           <span>✓</span>
           <span>{feedback || `Título copiado: ${copiedTitle}`}</span>
         </div>
       )}
 
       {/* Movie List Header */}
-      <div class="mt-6 sm:mt-8 mb-4 flex items-center justify-between">
+      <div class="mt-6 mb-3 flex items-center justify-between">
         <div class="flex items-center gap-2">
-          <h2 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
-            <span>Top 15 {currentSubgenre.name}</span>
+          <h2 class="text-sm sm:text-base font-semibold text-zinc-100">
+            {currentSubgenre.name}
           </h2>
-          <span class="text-xs px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 font-mono">
+          <span class="text-[11px] font-mono text-zinc-500 bg-zinc-900 border border-zinc-800 px-1.5 py-0.2 rounded">
             {currentSubgenre.movies.length} títulos
           </span>
         </div>
       </div>
 
-      {/* Movies Grid (Sin carátulas: 1 col on mobile, 2 col on tablet, 3 col on desktop) */}
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-5">
+      {/* Movies Grid */}
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
         {currentSubgenre.movies.map((movie: ImdbMovie) => {
           const isExpanded = expandedMovieIndex === movie.rank;
           const match = getWatchlistMatch(movie);
@@ -265,38 +252,33 @@ export function TopImdbView({ onSearchMovie }: TopImdbViewProps) {
           return (
             <div
               key={movie.rank}
-              class={`group relative bg-slate-900/90 border rounded-2xl p-4 sm:p-5 transition-all duration-200 shadow-xl flex flex-col justify-between hover:bg-slate-850 ${
+              class={`group relative bg-zinc-950 border rounded-md p-3.5 sm:p-4 transition-colors flex flex-col justify-between ${
                 isWatched
-                  ? 'border-emerald-500/50 bg-emerald-950/10'
+                  ? 'border-zinc-700 bg-zinc-900/40'
                   : isPlanToWatch
-                  ? 'border-purple-500/50'
-                  : 'border-slate-800 hover:border-slate-700'
+                  ? 'border-zinc-700'
+                  : 'border-zinc-800 hover:border-zinc-700'
               }`}
             >
               {/* Header: Rank + Title + Ratings */}
               <div>
-                <div class="flex items-start justify-between gap-2 mb-2.5">
-                  <div class="flex flex-wrap items-center gap-2">
+                <div class="flex items-start justify-between gap-2 mb-2">
+                  <div class="flex flex-wrap items-center gap-1.5">
                     {/* Rank Badge */}
-                    <span
-                      class={`px-2.5 py-1 rounded-xl text-xs shadow-md flex items-center justify-center min-w-[34px] ${getRankBadgeStyle(
-                        movie.rank
-                      )}`}
-                    >
+                    <span class="px-1.5 py-0.2 rounded text-[11px] font-mono font-medium bg-zinc-900 text-zinc-300 border border-zinc-800">
                       #{movie.rank}
                     </span>
 
-                    {/* Rating badge */}
-                    <span class="inline-flex items-center gap-1 bg-amber-400/15 border border-amber-400/30 text-amber-300 font-black text-xs px-2.5 py-0.5 rounded-lg">
+                    {/* IMDb Rating */}
+                    <span class="inline-flex items-center gap-1 bg-zinc-900 border border-zinc-800 text-amber-400 font-mono text-[11px] px-1.5 py-0.2 rounded">
                       <span>★</span>
                       <span>{movie.rating.toFixed(1)}</span>
                     </span>
 
                     {/* IN LIBRARY BADGE */}
                     {inLibrary && (
-                      <span class="text-[10px] px-2 py-0.5 rounded-md font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center gap-1">
-                        <span>✓</span>
-                        <span>EN BIBLIOTECA</span>
+                      <span class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-zinc-900 text-zinc-200 border border-zinc-700">
+                        En servidor
                       </span>
                     )}
 
@@ -307,23 +289,15 @@ export function TopImdbView({ onSearchMovie }: TopImdbViewProps) {
                           match.ratings.map((r) => (
                             <span
                               key={r.user_nick}
-                              class={`text-[10px] px-2 py-0.5 rounded-md font-bold border flex items-center gap-1 ${
-                                r.user_nick.toLowerCase() === 'nano'
-                                  ? 'bg-purple-500/20 text-purple-300 border-purple-500/40'
-                                  : r.user_nick.toLowerCase() === 'vane'
-                                  ? 'bg-pink-500/20 text-pink-300 border-pink-500/40'
-                                  : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
-                              }`}
+                              class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-zinc-900 text-zinc-300 border border-zinc-700 flex items-center gap-1"
                             >
-                              <span>👤 {r.user_nick}:</span>
-                              <span>{r.reaction || (r.rating ? `★ ${r.rating}` : '✓')}</span>
+                              <span>{r.user_nick}:</span>
+                              <span>{r.reaction || (r.rating ? `${r.rating}★` : '✓')}</span>
                             </span>
                           ))
                         ) : (
-                          <span class="text-[10px] px-2 py-0.5 rounded-md font-bold bg-purple-500/20 text-purple-300 border border-purple-500/40 flex items-center gap-1">
-                            <span>✓ Vista</span>
-                            {match.user_rating && <span>({match.user_rating}★)</span>}
-                            {match.user_nick && <span class="opacity-80">· {match.user_nick}</span>}
+                          <span class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-zinc-900 text-zinc-300 border border-zinc-700">
+                            Vista {match.user_rating ? `(${match.user_rating}★)` : ''}
                           </span>
                         )}
                       </div>
@@ -331,18 +305,18 @@ export function TopImdbView({ onSearchMovie }: TopImdbViewProps) {
 
                     {/* PLAN TO WATCH BADGE */}
                     {isPlanToWatch && !isWatched && (
-                      <span class="text-[10px] px-2 py-0.5 rounded-md font-semibold bg-purple-600/20 text-purple-300 border border-purple-600/30">
-                        📌 En Por Ver
+                      <span class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-zinc-900 text-zinc-400 border border-zinc-800">
+                        Por Ver
                       </span>
                     )}
                   </div>
 
                   {/* Year & Duration */}
-                  <div class="text-[11px] text-slate-400 font-mono flex items-center gap-1.5 flex-none">
+                  <div class="text-[11px] text-zinc-400 font-mono flex items-center gap-1 flex-none">
                     <span>{movie.year}</span>
                     {movie.duration && (
                       <>
-                        <span>•</span>
+                        <span>·</span>
                         <span>{movie.duration}</span>
                       </>
                     )}
@@ -350,40 +324,40 @@ export function TopImdbView({ onSearchMovie }: TopImdbViewProps) {
                 </div>
 
                 {/* Title */}
-                <h3 class="text-base sm:text-lg font-bold text-white leading-snug group-hover:text-emerald-300 transition-colors">
+                <h3 class="text-sm sm:text-base font-semibold text-zinc-100 leading-snug">
                   {movie.title}
                 </h3>
 
                 {movie.originalTitle !== movie.title && (
-                  <p class="text-xs text-slate-400 italic mt-0.5" title={`Título original: ${movie.originalTitle}`}>
+                  <p class="text-xs text-zinc-400 mt-0.5 font-normal" title={`Título original: ${movie.originalTitle}`}>
                     {movie.originalTitle}
                   </p>
                 )}
 
-                <p class="text-xs text-slate-400 mt-1.5 flex items-center gap-1.5">
-                  <span class="text-slate-500 font-semibold">Dirección:</span>
-                  <span class="text-slate-300 font-medium">{movie.director}</span>
+                <p class="text-xs text-zinc-400 mt-1 flex items-center gap-1 font-normal">
+                  <span class="text-zinc-500">Dirección:</span>
+                  <span class="text-zinc-300">{movie.director}</span>
                 </p>
 
                 {/* Synopsis */}
-                <div class="mt-3 text-xs sm:text-sm text-slate-300 leading-relaxed bg-slate-950/50 p-3 rounded-xl border border-slate-800/80">
-                  <p class={isExpanded ? '' : 'line-clamp-3 sm:line-clamp-4'}>
+                <div class="mt-2.5 text-xs text-zinc-300 leading-relaxed bg-zinc-900/60 p-2.5 rounded border border-zinc-800/80 font-normal">
+                  <p class={isExpanded ? '' : 'line-clamp-3'}>
                     {movie.synopsis}
                   </p>
                   {movie.synopsis.length > 140 && (
                     <button
                       data-nav="item"
                       onClick={() => setExpandedMovieIndex(isExpanded ? null : movie.rank)}
-                      class="mt-1.5 text-xs text-emerald-400 hover:text-emerald-300 font-bold underline block cursor-pointer"
+                      class="mt-1 text-xs text-zinc-400 hover:text-zinc-200 underline block cursor-pointer"
                     >
-                      {isExpanded ? 'Ver menos' : 'Leer sinopsis completa...'}
+                      {isExpanded ? 'Mostrar menos' : 'Leer sinopsis completa'}
                     </button>
                   )}
                 </div>
               </div>
 
-              {/* Bottom Actions: Marcar Vista + Por Ver + Search Torrents + Copy Title */}
-              <div class="mt-4 pt-3.5 border-t border-slate-800/80 flex flex-wrap items-center gap-2">
+              {/* Bottom Actions */}
+              <div class="mt-3.5 pt-2.5 border-t border-zinc-800/80 flex flex-wrap items-center gap-1.5">
                 {/* Mark as Watched button */}
                 <button
                   data-nav="item"
@@ -391,27 +365,26 @@ export function TopImdbView({ onSearchMovie }: TopImdbViewProps) {
                     setUserRating(match?.user_rating || 5);
                     setMarkingMovie(movie);
                   }}
-                  class={`py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                  class={`py-1.5 px-2.5 rounded text-xs font-medium flex items-center justify-center gap-1 transition-colors cursor-pointer border ${
                     isWatched
-                      ? 'bg-purple-900/60 hover:bg-purple-800 text-purple-200 border border-purple-500/40'
-                      : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-md shadow-emerald-950/30'
+                      ? 'bg-zinc-800 text-zinc-200 border-zinc-700'
+                      : 'bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border-zinc-800'
                   }`}
-                  title={isWatched ? 'Editar calificación de película vista' : 'Marcar película como vista y calificar'}
+                  title={isWatched ? 'Editar calificación' : 'Marcar como vista'}
                 >
                   <span>✓</span>
-                  <span>{isWatched ? `Vista (${match.user_rating || 5}★)` : 'Marcar Vista'}</span>
+                  <span>{isWatched ? `Vista (${match.user_rating || 5}★)` : 'Marcar vista'}</span>
                 </button>
 
-                {/* Add to Por Ver (only if not already watched or in list) */}
+                {/* Add to Por Ver */}
                 {!isWatched && !isPlanToWatch && (
                   <button
                     data-nav="item"
                     onClick={(e) => handleAddToPlanToWatch(movie, e)}
-                    class="py-2 px-2.5 bg-slate-800 hover:bg-slate-700 text-purple-300 font-semibold rounded-xl text-xs transition-colors border border-slate-700 cursor-pointer flex items-center gap-1"
-                    title="Agregar a Por Ver"
+                    class="py-1.5 px-2.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 rounded text-xs font-medium transition-colors border border-zinc-800 cursor-pointer"
+                    title="Añadir a Por Ver"
                   >
-                    <span>📌</span>
-                    <span>Por Ver</span>
+                    + Por Ver
                   </button>
                 )}
 
@@ -419,25 +392,25 @@ export function TopImdbView({ onSearchMovie }: TopImdbViewProps) {
                 <button
                   data-nav="item"
                   onClick={() => onSearchMovie(movie.originalTitle || movie.title)}
-                  class="flex-1 py-2 px-3 bg-slate-800 hover:bg-slate-700 text-emerald-400 font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all border border-slate-700 cursor-pointer"
-                  title={`Buscar torrents para ${movie.originalTitle || movie.title}`}
+                  class="flex-1 py-1.5 px-2.5 bg-zinc-100 hover:bg-white text-zinc-950 font-medium rounded text-xs flex items-center justify-center gap-1 transition-colors cursor-pointer shadow-sm"
+                  title={`Buscar descargas para ${movie.originalTitle || movie.title}`}
                 >
-                  <svg class="w-3.5 h-3.5 fill-none stroke-current" stroke-width="2.5" viewBox="0 0 24 24">
+                  <svg class="w-3 h-3 fill-none stroke-current" stroke-width="2" viewBox="0 0 24 24">
                     <circle cx="11" cy="11" r="8" />
                     <line x1="21" y1="21" x2="16.65" y2="16.65" />
                   </svg>
-                  <span class="hidden xs:inline">Torrents</span>
+                  <span>Buscar</span>
                 </button>
 
                 {/* Copy Title */}
                 <button
                   data-nav="item"
                   onClick={(e) => handleCopyTitle(movie.originalTitle || movie.title, e)}
-                  class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs transition-colors border border-slate-700 flex items-center justify-center cursor-pointer"
+                  class="p-1.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 rounded text-xs transition-colors border border-zinc-800 flex items-center justify-center cursor-pointer"
                   title="Copiar título"
                 >
-                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" />
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" />
                   </svg>
                 </button>
               </div>
@@ -449,39 +422,39 @@ export function TopImdbView({ onSearchMovie }: TopImdbViewProps) {
       {/* ─── MODAL: CALIFICAR Y MARCAR COMO VISTA ─── */}
       {markingMovie && (
         <div
-          class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
+          class="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
           onClick={() => setMarkingMovie(null)}
         >
           <div
-            class="bg-slate-900 border border-slate-700 rounded-2xl max-w-sm w-full p-5 shadow-2xl space-y-4"
+            class="bg-zinc-950 border border-zinc-800 rounded-lg max-w-sm w-full p-5 shadow-2xl space-y-4"
             onClick={(e) => e.stopPropagation()}
           >
-            <div class="flex items-center justify-between pb-2 border-b border-slate-800">
-              <h3 class="text-sm font-bold text-white flex items-center gap-1.5">
-                <span>✓ Marcar como Vista:</span>
+            <div class="flex items-center justify-between pb-2 border-b border-zinc-800">
+              <h3 class="text-sm font-semibold text-zinc-100">
+                Calificar y registrar vista
               </h3>
               <button
                 data-nav="item"
                 onClick={() => setMarkingMovie(null)}
-                class="text-slate-400 hover:text-white p-1 text-sm rounded-lg"
+                class="text-zinc-400 hover:text-zinc-100 p-1 text-xs rounded"
               >
                 ✕
               </button>
             </div>
 
             <div>
-              <p class="text-sm font-bold text-emerald-400 truncate">
+              <p class="text-sm font-medium text-zinc-100 truncate">
                 {markingMovie.title}
               </p>
-              <p class="text-xs text-slate-400 mt-0.5">
-                {markingMovie.year} • ⭐ IMDb {markingMovie.rating.toFixed(1)}
+              <p class="text-xs text-zinc-400 font-mono mt-0.5">
+                {markingMovie.year} · ★ {markingMovie.rating.toFixed(1)} IMDb
               </p>
             </div>
 
             {/* Nick Switcher */}
             <div>
-              <label class="block text-xs font-semibold text-slate-300 mb-1.5">
-                ¿Quién califica?
+              <label class="block text-xs font-mono text-zinc-400 mb-1.5 uppercase">
+                Perfil activo
               </label>
               <div class="grid grid-cols-2 gap-2 mb-2">
                 <button
@@ -493,13 +466,13 @@ export function TopImdbView({ onSearchMovie }: TopImdbViewProps) {
                     const r = m?.ratings?.find((x) => x.user_nick.toLowerCase() === 'nano');
                     if (r && r.rating) setUserRating(r.rating);
                   }}
-                  class={`py-1.5 px-3 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
+                  class={`py-1.5 px-3 rounded text-xs font-medium transition-colors border cursor-pointer ${
                     nick.toLowerCase() === 'nano'
-                      ? 'bg-purple-600 text-white border-purple-500 shadow-md shadow-purple-900/40'
-                      : 'bg-slate-950 text-slate-400 border-slate-800'
+                      ? 'bg-zinc-800 text-zinc-100 border-zinc-600 shadow-sm'
+                      : 'bg-zinc-900 text-zinc-400 border-zinc-800'
                   }`}
                 >
-                  👤 Nano
+                  Nano
                 </button>
                 <button
                   type="button"
@@ -510,13 +483,13 @@ export function TopImdbView({ onSearchMovie }: TopImdbViewProps) {
                     const r = m?.ratings?.find((x) => x.user_nick.toLowerCase() === 'vane');
                     if (r && r.rating) setUserRating(r.rating);
                   }}
-                  class={`py-1.5 px-3 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
+                  class={`py-1.5 px-3 rounded text-xs font-medium transition-colors border cursor-pointer ${
                     nick.toLowerCase() === 'vane'
-                      ? 'bg-pink-600 text-white border-pink-500 shadow-md shadow-pink-900/40'
-                      : 'bg-slate-950 text-slate-400 border-slate-800'
+                      ? 'bg-zinc-800 text-zinc-100 border-zinc-600 shadow-sm'
+                      : 'bg-zinc-900 text-zinc-400 border-zinc-800'
                   }`}
                 >
-                  👤 Vane
+                  Vane
                 </button>
               </div>
               <input
@@ -524,15 +497,15 @@ export function TopImdbView({ onSearchMovie }: TopImdbViewProps) {
                 data-nav="item"
                 value={nick}
                 onInput={(e) => setNick((e.target as HTMLInputElement).value)}
-                placeholder="O escribe otro nombre..."
-                class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-purple-500 font-bold"
+                placeholder="Otro nombre..."
+                class="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-1.5 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-zinc-500 font-mono"
               />
             </div>
 
             {/* Stars Selector (1 to 5) */}
-            <div class="p-3 bg-slate-950/80 border border-slate-800 rounded-xl text-center">
-              <label class="block text-xs font-bold text-slate-300 mb-2">
-                Tu Calificación en estrellas:
+            <div class="p-3 bg-zinc-900/60 border border-zinc-800 rounded text-center">
+              <label class="block text-xs font-mono text-zinc-400 mb-2 uppercase">
+                Calificación
               </label>
               <div class="flex items-center justify-center gap-2">
                 {[1, 2, 3, 4, 5].map((star) => (
@@ -540,33 +513,33 @@ export function TopImdbView({ onSearchMovie }: TopImdbViewProps) {
                     key={star}
                     data-nav="item"
                     onClick={() => setUserRating(star)}
-                    class={`text-3xl transition-transform hover:scale-125 cursor-pointer ${
-                      star <= userRating ? 'text-amber-400' : 'text-slate-700'
+                    class={`text-2xl transition-colors cursor-pointer ${
+                      star <= userRating ? 'text-amber-400' : 'text-zinc-700'
                     }`}
                   >
                     ★
                   </button>
                 ))}
               </div>
-              <span class="text-xs font-mono text-amber-300 font-bold block mt-1.5">
+              <span class="text-xs font-mono text-zinc-400 block mt-1.5">
                 {userRating} de 5 estrellas
               </span>
             </div>
 
-            <div class="pt-2 flex items-center justify-end gap-2 border-t border-slate-800">
+            <div class="pt-2 flex items-center justify-end gap-2 border-t border-zinc-800">
               <button
                 data-nav="item"
                 onClick={() => setMarkingMovie(null)}
-                class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold cursor-pointer"
+                class="px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 rounded text-xs font-medium border border-zinc-800 transition-colors cursor-pointer"
               >
                 Cancelar
               </button>
               <button
                 data-nav="item"
                 onClick={handleConfirmWatched}
-                class="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold shadow-md shadow-emerald-900/30 cursor-pointer"
+                class="px-4 py-1.5 bg-zinc-100 hover:bg-white text-zinc-950 rounded text-xs font-medium transition-colors cursor-pointer shadow-sm"
               >
-                Confirmar Vista
+                Confirmar
               </button>
             </div>
           </div>

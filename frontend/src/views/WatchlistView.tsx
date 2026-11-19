@@ -10,9 +10,9 @@ const STORAGE_LAST_NICK_KEY = 'verlet_cine_last_nick';
 
 const REACTION_OPTIONS = [
   { label: '💤 Se durmió', value: '💤 (Se durmió)' },
-  { label: '🤢 Asco', value: '🤢 (Asco)' },
+  { label: '🤢 Regular', value: '🤢 (Regular)' },
   { label: '❤️ Me encantó', value: '❤️ (Me encantó)' },
-  { label: '😭 Lloré', value: '😭 (Lloré)' },
+  { label: '😭 Emotiva', value: '😭 (Emotiva)' },
   { label: '🔥 Obra maestra', value: '🔥 (Obra maestra)' }
 ];
 
@@ -98,13 +98,15 @@ export function WatchlistView({ onSearchMovie }: WatchlistViewProps) {
     setFormNick(trimmed);
     try {
       localStorage.setItem(STORAGE_LAST_NICK_KEY, trimmed);
-    } catch {}
+    } catch {
+      // quiet
+    }
   };
 
-  // Open multi-rating modal for a title
+  // Open Rating modal
   const handleOpenRatingModal = (item: WatchlistItem, presetNick?: string) => {
-    // Priority: explicit presetNick > current activeUser > localStorage > fallback
-    let targetNick = presetNick || activeUser;
+    setRatingModalItem(item);
+    let targetNick = presetNick;
     if (!targetNick) {
       try {
         targetNick = localStorage.getItem(STORAGE_LAST_NICK_KEY) || 'Nano';
@@ -112,18 +114,14 @@ export function WatchlistView({ onSearchMovie }: WatchlistViewProps) {
         targetNick = 'Nano';
       }
     }
-    targetNick = targetNick.trim();
-
-    setRatingModalItem(item);
     setRatingUser(targetNick);
 
-    // Find existing rating for this user
+    // Look for existing rating of this user
     const existing = (item.ratings || []).find(
-      (r) => r.user_nick.trim().toLowerCase() === targetNick.toLowerCase()
+      (r) => r.user_nick.toLowerCase() === targetNick!.trim().toLowerCase()
     );
-
     if (existing) {
-      setSelectedRating(existing.rating !== undefined && existing.rating !== null ? existing.rating : null);
+      setSelectedRating(existing.rating !== undefined ? existing.rating : null);
       setSelectedReaction(existing.reaction || null);
       setRatingComment(existing.comment || '');
     } else {
@@ -133,17 +131,15 @@ export function WatchlistView({ onSearchMovie }: WatchlistViewProps) {
     }
   };
 
-  // When user switches inside rating modal (e.g. from Nano to Vane)
   const handleSwitchRatingUser = (newNick: string) => {
+    setRatingUser(newNick);
     selectActiveUser(newNick);
-
     if (!ratingModalItem) return;
     const existing = (ratingModalItem.ratings || []).find(
-      (r) => r.user_nick.trim().toLowerCase() === newNick.trim().toLowerCase()
+      (r) => r.user_nick.toLowerCase() === newNick.trim().toLowerCase()
     );
-
     if (existing) {
-      setSelectedRating(existing.rating !== undefined && existing.rating !== null ? existing.rating : null);
+      setSelectedRating(existing.rating !== undefined ? existing.rating : null);
       setSelectedReaction(existing.reaction || null);
       setRatingComment(existing.comment || '');
     } else {
@@ -153,48 +149,67 @@ export function WatchlistView({ onSearchMovie }: WatchlistViewProps) {
     }
   };
 
-  // Submit User Rating
+  // Save rating
   const handleSaveRating = async () => {
-    if (!ratingModalItem || !ratingUser.trim()) return;
-
+    if (!ratingModalItem) return;
+    const cleanNick = ratingUser.trim() || 'Nano';
+    selectActiveUser(cleanNick);
     try {
       setIsRatingSubmitting(true);
-      selectActiveUser(ratingUser.trim());
-
       await api.rateWatchlistItem(ratingModalItem.id, {
-        user_nick: ratingUser.trim(),
+        user_nick: cleanNick,
         rating: selectedRating !== null ? selectedRating : undefined,
         reaction: selectedReaction || undefined,
         comment: ratingComment.trim() || undefined
       });
-
       setRatingModalItem(null);
       await fetchItems();
     } catch (err: any) {
-      alert('Error al guardar calificación: ' + (err.message || 'Error'));
+      alert('Error: ' + (err.message || 'Error al guardar calificación'));
     } finally {
       setIsRatingSubmitting(false);
     }
   };
 
-  // Delete User Rating
+  // Delete specific rating
   const handleDeleteRating = async () => {
-    if (!ratingModalItem || !ratingUser.trim()) return;
-    if (!confirm(`¿Eliminar la calificación de ${ratingUser} para "${ratingModalItem.title}"?`)) return;
-
+    if (!ratingModalItem) return;
+    const cleanNick = ratingUser.trim() || 'Nano';
     try {
       setIsRatingSubmitting(true);
-      await api.deleteUserRating(ratingModalItem.id, ratingUser.trim());
+      await api.deleteUserRating(ratingModalItem.id, cleanNick);
       setRatingModalItem(null);
       await fetchItems();
     } catch (err: any) {
-      alert('Error al eliminar calificación: ' + (err.message || 'Error'));
+      alert('Error: ' + (err.message || 'Error al eliminar calificación'));
     } finally {
       setIsRatingSubmitting(false);
     }
   };
 
-  // Open modal to add
+  // Move item between statuses
+  const handleToggleStatus = async (item: WatchlistItem) => {
+    const nextStatus = item.status === 'completed' ? 'plan_to_watch' : 'completed';
+    try {
+      await api.updateWatchlistItem(item.id, { status: nextStatus });
+      await fetchItems();
+    } catch (err: any) {
+      alert('Error: ' + (err.message || 'Error al cambiar estado'));
+    }
+  };
+
+  // Delete whole item
+  const handleDeleteItem = async (item: WatchlistItem) => {
+    if (!confirm(`¿Eliminar "${item.title}" de tu lista?`)) return;
+    try {
+      await api.deleteWatchlistItem(item.id);
+      await fetchItems();
+    } catch (err: any) {
+      alert('Error: ' + (err.message || 'Error al eliminar'));
+    }
+  };
+
+  // Open modal for new item
   const handleOpenAddModal = (presetStatus?: 'plan_to_watch' | 'completed') => {
     setEditingItem(null);
     setFormTitle('');
@@ -210,7 +225,7 @@ export function WatchlistView({ onSearchMovie }: WatchlistViewProps) {
     setIsAddModalOpen(true);
   };
 
-  // Open modal to edit basic title info
+  // Open modal for editing
   const handleOpenEditModal = (item: WatchlistItem) => {
     setEditingItem(item);
     setFormTitle(item.title);
@@ -226,73 +241,59 @@ export function WatchlistView({ onSearchMovie }: WatchlistViewProps) {
     setIsAddModalOpen(true);
   };
 
-  // Submit Add or Edit
+  // Save add/edit item
   const handleSaveItem = async (e: Event) => {
     e.preventDefault();
     if (!formTitle.trim()) {
-      setErrorMsg('El título es obligatorio.');
+      setErrorMsg('El título es requerido');
       return;
     }
 
     try {
       setIsSubmitting(true);
       setErrorMsg(null);
-      if (formNick.trim()) {
-        selectActiveUser(formNick);
-      }
 
-      const payload: Partial<WatchlistItem> = {
-        title: formTitle.trim(),
-        original_title: formOriginalTitle.trim() || undefined,
-        type: formType,
-        status: formStatus,
-        year: formYear ? parseInt(formYear, 10) : undefined,
-        imdb_rating: formImdbRating ? parseFloat(formImdbRating) : undefined,
-        user_nick: formNick.trim() || undefined,
-        user_rating: formStatus === 'completed' ? formRating : undefined,
-        notes: formNotes.trim() || undefined
-      };
+      const parsedYear = formYear.trim() ? parseInt(formYear.trim(), 10) : undefined;
+      const parsedImdb = formImdbRating.trim() ? parseFloat(formImdbRating.trim()) : undefined;
+      const cleanNick = formNick.trim() || activeUser || 'Nano';
+      selectActiveUser(cleanNick);
 
       if (editingItem) {
-        await api.updateWatchlistItem(editingItem.id, payload);
+        await api.updateWatchlistItem(editingItem.id, {
+          title: formTitle.trim(),
+          original_title: formOriginalTitle.trim() || undefined,
+          type: formType,
+          status: formStatus,
+          year: parsedYear,
+          imdb_rating: parsedImdb,
+          user_rating: formStatus === 'completed' ? formRating : undefined,
+          user_nick: cleanNick,
+          notes: formNotes.trim() || undefined
+        });
       } else {
-        await api.addToWatchlist(payload);
+        await api.addToWatchlist({
+          title: formTitle.trim(),
+          original_title: formOriginalTitle.trim() || undefined,
+          type: formType,
+          status: formStatus,
+          year: parsedYear,
+          imdb_rating: parsedImdb,
+          user_rating: formStatus === 'completed' ? formRating : undefined,
+          user_nick: cleanNick,
+          notes: formNotes.trim() || undefined
+        });
       }
 
       setIsAddModalOpen(false);
-      setEditingItem(null);
       await fetchItems();
     } catch (err: any) {
-      setErrorMsg(err.message || 'Error al guardar el título');
+      setErrorMsg(err.message || 'Error al guardar');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Quick move to plan to watch
-  const handleMoveToPlanToWatch = async (item: WatchlistItem) => {
-    try {
-      await api.updateWatchlistItem(item.id, {
-        status: 'plan_to_watch'
-      });
-      await fetchItems();
-    } catch (err: any) {
-      alert('Error al mover a Por Ver: ' + (err.message || 'Error'));
-    }
-  };
-
-  // Delete entire item
-  const handleDeleteItem = async (item: WatchlistItem) => {
-    if (!confirm(`¿Eliminar "${item.title}" de la lista?`)) return;
-    try {
-      await api.deleteWatchlistItem(item.id);
-      await fetchItems();
-    } catch (err: any) {
-      alert('Error al eliminar: ' + (err.message || 'Error'));
-    }
-  };
-
-  // Filter items
+  // Filtered items
   const filteredItems = useMemo(() => {
     return items.filter((item) => {
       if (item.status !== activeTab) return false;
@@ -315,38 +316,35 @@ export function WatchlistView({ onSearchMovie }: WatchlistViewProps) {
   const completedCount = useMemo(() => items.filter((i) => i.status === 'completed').length, [items]);
 
   return (
-    <div class="px-3 sm:px-[4vw] py-5 sm:py-8 max-w-7xl mx-auto select-none w-full max-w-full overflow-x-hidden">
+    <div class="px-4 sm:px-[4vw] py-6 max-w-6xl mx-auto select-none w-full max-w-full overflow-x-hidden">
       {/* Header Banner */}
-      <div class="mb-6 sm:mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-slate-800 pb-5 sm:pb-6">
+      <div class="mb-6 flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-zinc-800 pb-5">
         <div>
-          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-400 text-xs font-bold mb-2">
-            <span>🔖 MI LISTA PERSONAL</span>
-            <span class="text-slate-500">•</span>
-            <span>Vane & Nano</span>
+          <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded bg-zinc-900 border border-zinc-800 text-zinc-300 text-xs font-mono mb-2">
+            <span>Colección personal</span>
+            <span class="text-zinc-600">/</span>
+            <span class="text-zinc-400">Multi-usuario</span>
           </div>
-          <h1 class="text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight">
-            Colección de Títulos
+          <h1 class="text-xl sm:text-2xl md:text-3xl font-semibold text-zinc-100 tracking-tight">
+            Mi Lista de Títulos
           </h1>
-          <p class="text-xs sm:text-sm text-slate-400 mt-1 max-w-2xl">
-            Películas y series para ver juntos y vistas. Ambos pueden calificar independientemente cada título con estrellas o reacciones.
+          <p class="text-xs sm:text-sm text-zinc-400 mt-1 max-w-xl leading-relaxed">
+            Organiza películas y series vistas o por ver. Calificaciones independientes para cada perfil.
           </p>
         </div>
 
-        {/* User Switcher Pill & Add Button */}
-        <div class="flex flex-wrap items-center gap-3">
-          {/* Quick Active User Pill */}
-          <div class="flex items-center gap-1.5 bg-slate-900 border border-slate-800 p-1.5 rounded-2xl shadow-sm">
-            <span class="text-xs text-slate-400 px-2 font-bold flex items-center gap-1">
-              <span>👤</span>
-              <span>¿Quién vota?:</span>
-            </span>
+        {/* User Switcher & Add Button */}
+        <div class="flex flex-wrap items-center gap-2">
+          {/* Active User Segmented Toggle */}
+          <div class="inline-flex items-center p-0.5 bg-zinc-950 border border-zinc-800 rounded-md">
+            <span class="text-[11px] font-mono text-zinc-400 px-2 uppercase">Perfil:</span>
             <button
               data-nav="item"
               onClick={() => selectActiveUser('Nano')}
-              class={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              class={`px-2.5 py-1 rounded text-xs font-medium transition-colors cursor-pointer ${
                 activeUser.toLowerCase() === 'nano'
-                  ? 'bg-purple-600 text-white shadow-md shadow-purple-900/40 ring-1 ring-purple-400'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                  ? 'bg-zinc-800 text-zinc-100 shadow-sm border border-zinc-700/80'
+                  : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
               Nano
@@ -354,10 +352,10 @@ export function WatchlistView({ onSearchMovie }: WatchlistViewProps) {
             <button
               data-nav="item"
               onClick={() => selectActiveUser('Vane')}
-              class={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              class={`px-2.5 py-1 rounded text-xs font-medium transition-colors cursor-pointer ${
                 activeUser.toLowerCase() === 'vane'
-                  ? 'bg-pink-600 text-white shadow-md shadow-pink-900/40 ring-1 ring-pink-400'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                  ? 'bg-zinc-800 text-zinc-100 shadow-sm border border-zinc-700/80'
+                  : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
               Vane
@@ -369,63 +367,64 @@ export function WatchlistView({ onSearchMovie }: WatchlistViewProps) {
             data-nav="item"
             data-nav-default="true"
             onClick={() => handleOpenAddModal()}
-            class="px-4 py-2.5 bg-purple-600 hover:bg-purple-500 active:scale-95 text-white font-bold rounded-xl text-xs sm:text-sm flex items-center gap-2 transition-all shadow-lg shadow-purple-900/30 cursor-pointer"
+            class="px-3.5 py-1.5 bg-zinc-100 hover:bg-white text-zinc-950 font-medium rounded-md text-xs sm:text-sm flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm"
           >
-            <span class="text-base leading-none font-black">+</span>
-            <span>Agregar Título</span>
+            <span>+</span>
+            <span>Añadir título</span>
           </button>
         </div>
       </div>
 
       {/* Main Tabs: VISTAS vs POR VER */}
-      <div class="flex items-center gap-3 border-b border-slate-800/80 pb-3">
-        <button
-          data-nav="item"
-          onClick={() => setActiveTab('completed')}
-          class={`px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
-            activeTab === 'completed'
-              ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/30 scale-[1.02]'
-              : 'bg-slate-900/80 hover:bg-slate-800 text-slate-300 border border-slate-800'
-          }`}
-        >
-          <span>✓ Vistas</span>
-          <span class="px-2 py-0.5 rounded-full bg-black/40 text-xs font-mono">
-            {completedCount}
-          </span>
-        </button>
+      <div class="flex items-center gap-2 border-b border-zinc-800 pb-3">
+        <div class="inline-flex p-0.5 bg-zinc-950 border border-zinc-800 rounded-md">
+          <button
+            data-nav="item"
+            onClick={() => setActiveTab('completed')}
+            class={`px-3 py-1.5 rounded text-xs sm:text-sm font-medium flex items-center gap-2 transition-colors cursor-pointer ${
+              activeTab === 'completed'
+                ? 'bg-zinc-800 text-zinc-100 shadow-sm border border-zinc-700/80'
+                : 'text-zinc-400 hover:text-zinc-200'
+            }`}
+          >
+            <span>Vistas</span>
+            <span class="px-1.5 py-0.2 rounded font-mono text-[10px] bg-zinc-900 border border-zinc-800 text-zinc-400">
+              {completedCount}
+            </span>
+          </button>
 
-        <button
-          data-nav="item"
-          onClick={() => setActiveTab('plan_to_watch')}
-          class={`px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
-            activeTab === 'plan_to_watch'
-              ? 'bg-purple-600 text-white shadow-lg shadow-purple-900/30 scale-[1.02]'
-              : 'bg-slate-900/80 hover:bg-slate-800 text-slate-300 border border-slate-800'
-          }`}
-        >
-          <span>📌 Por Ver</span>
-          <span class="px-2 py-0.5 rounded-full bg-black/40 text-xs font-mono">
-            {planToWatchCount}
-          </span>
-        </button>
+          <button
+            data-nav="item"
+            onClick={() => setActiveTab('plan_to_watch')}
+            class={`px-3 py-1.5 rounded text-xs sm:text-sm font-medium flex items-center gap-2 transition-colors cursor-pointer ${
+              activeTab === 'plan_to_watch'
+                ? 'bg-zinc-800 text-zinc-100 shadow-sm border border-zinc-700/80'
+                : 'text-zinc-400 hover:text-zinc-200'
+            }`}
+          >
+            <span>Por Ver</span>
+            <span class="px-1.5 py-0.2 rounded font-mono text-[10px] bg-zinc-900 border border-zinc-800 text-zinc-400">
+              {planToWatchCount}
+            </span>
+          </button>
+        </div>
       </div>
 
       {/* Filters bar: Type + Search */}
-      <div class="mt-4 sm:mt-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        {/* Type pills */}
-        <div class="flex items-center gap-2">
+      <div class="mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+        <div class="inline-flex p-0.5 bg-zinc-950 border border-zinc-800 rounded-md">
           {(['all', 'Movie', 'Series'] as const).map((t) => {
             const isSelected = selectedType === t;
-            const labels = { all: 'Todas', Movie: '🎬 Películas', Series: '📺 Series' };
+            const labels = { all: 'Todas', Movie: 'Películas', Series: 'Series' };
             return (
               <button
                 key={t}
                 data-nav="item"
                 onClick={() => setSelectedType(t)}
-                class={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                class={`px-2.5 py-1 rounded text-xs font-medium transition-colors cursor-pointer ${
                   isSelected
-                    ? 'bg-slate-700 text-white font-bold ring-1 ring-slate-500'
-                    : 'bg-slate-900/80 hover:bg-slate-800 text-slate-400 border border-slate-800'
+                    ? 'bg-zinc-800 text-zinc-100 shadow-sm'
+                    : 'text-zinc-400 hover:text-zinc-200'
                 }`}
               >
                 {labels[t]}
@@ -435,19 +434,19 @@ export function WatchlistView({ onSearchMovie }: WatchlistViewProps) {
         </div>
 
         {/* Quick search input */}
-        <div class="relative w-full sm:w-72">
+        <div class="relative w-full sm:w-64">
           <input
             type="text"
             data-nav="item"
-            placeholder="Filtrar por título, nick o reacción..."
+            placeholder="Filtrar por título, perfil..."
             value={searchQuery}
             onInput={(e) => setSearchQuery((e.target as HTMLInputElement).value)}
-            class="w-full bg-slate-900/90 border border-slate-800 rounded-xl px-3.5 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+            class="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-1.5 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-zinc-500 font-mono"
           />
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
-              class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white text-xs"
+              class="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-200 text-xs"
             >
               ✕
             </button>
@@ -457,35 +456,33 @@ export function WatchlistView({ onSearchMovie }: WatchlistViewProps) {
 
       {/* Content Area */}
       {loading ? (
-        <div class="py-20 flex flex-col items-center justify-center gap-3 text-slate-400">
-          <div class="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
-          <p class="text-xs font-mono">Cargando títulos...</p>
+        <div class="py-16 text-center text-zinc-500 text-xs font-mono">
+          Cargando títulos de la lista...
         </div>
       ) : filteredItems.length === 0 ? (
-        <div class="mt-8 p-10 rounded-2xl bg-slate-900/60 border border-slate-800 text-center flex flex-col items-center justify-center gap-3">
-          <span class="text-4xl">{activeTab === 'plan_to_watch' ? '📌' : '🎬'}</span>
-          <h3 class="text-base font-bold text-white">
+        <div class="mt-6 p-8 rounded-md bg-zinc-950 border border-zinc-800 text-center flex flex-col items-center justify-center gap-2">
+          <h3 class="text-sm font-medium text-zinc-200">
             {searchQuery
-              ? 'No se encontraron títulos con ese filtro'
+              ? 'No hay títulos que coincidan con la búsqueda'
               : activeTab === 'plan_to_watch'
-              ? 'No tienes títulos por ver en esta categoría'
-              : 'Aún no has marcado títulos como vistos'}
+              ? 'No tienes títulos pendientes en esta categoría'
+              : 'Aún no has registrado títulos como vistos'}
           </h3>
-          <p class="text-xs text-slate-400 max-w-sm">
+          <p class="text-xs text-zinc-400 max-w-sm">
             {activeTab === 'plan_to_watch'
-              ? 'Agrega títulos que quieran ver o explora el Top 15 IMDb.'
-              : 'Marca películas como vistas y califícalas con notas independientes.'}
+              ? 'Añade títulos manualmente o explora el Top 15 IMDb.'
+              : 'Marca títulos vistos para guardar calificaciones independientes.'}
           </p>
           <button
             data-nav="item"
             onClick={() => handleOpenAddModal()}
-            class="mt-2 px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-xs font-bold cursor-pointer"
+            class="mt-2 px-3 py-1.5 bg-zinc-100 hover:bg-white text-zinc-950 rounded text-xs font-medium cursor-pointer shadow-sm"
           >
-            + Agregar título ahora
+            + Añadir título
           </button>
         </div>
       ) : (
-        <div class="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-5">
+        <div class="mt-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {filteredItems.map((item) => {
             const hasRatings = item.ratings && item.ratings.length > 0;
             const nanoVote = (item.ratings || []).find((r) => r.user_nick.toLowerCase() === 'nano');
@@ -500,184 +497,152 @@ export function WatchlistView({ onSearchMovie }: WatchlistViewProps) {
             return (
               <div
                 key={item.id}
-                class="group relative bg-slate-900/90 border border-slate-800 hover:border-slate-700 rounded-2xl p-4 sm:p-5 transition-all duration-200 shadow-xl flex flex-col justify-between hover:bg-slate-850"
+                class="group relative bg-zinc-950 border border-zinc-800 hover:border-zinc-700 rounded-md p-3.5 sm:p-4 transition-colors flex flex-col justify-between"
               >
                 <div>
                   {/* Top Badges */}
-                  <div class="flex items-start justify-between gap-2 mb-2.5">
+                  <div class="flex items-start justify-between gap-2 mb-2">
                     <div class="flex flex-wrap items-center gap-1.5">
-                      {/* Type Badge */}
-                      <span class="text-[11px] px-2 py-0.5 rounded-md font-semibold bg-slate-800 text-slate-300 border border-slate-700/60">
-                        {item.type === 'Series' ? '📺 Serie' : '🎬 Película'}
+                      <span class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-zinc-900 text-zinc-400 border border-zinc-800">
+                        {item.type === 'Series' ? 'Serie' : 'Película'}
                       </span>
 
-                      {/* IN LIBRARY BADGE */}
                       {item.in_library && (
-                        <span class="text-[10px] px-2 py-0.5 rounded-md font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center gap-1">
-                          <span>✓</span>
-                          <span>EN BIBLIOTECA</span>
+                        <span class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-zinc-900 text-zinc-200 border border-zinc-700">
+                          En servidor
                         </span>
                       )}
                     </div>
 
-                    {/* Year & IMDb */}
-                    <div class="flex items-center gap-2">
-                      {item.year && (
-                        <span class="text-[11px] text-slate-400 font-mono">
-                          {item.year}
-                        </span>
-                      )}
+                    <div class="flex items-center gap-1.5 font-mono text-[11px]">
+                      {item.year && <span class="text-zinc-400">{item.year}</span>}
                       {item.imdb_rating && (
-                        <span class="inline-flex items-center gap-1 bg-amber-400/15 border border-amber-400/30 text-amber-300 font-black text-[11px] px-2 py-0.5 rounded-lg">
-                          <span>⭐</span>
-                          <span>{item.imdb_rating.toFixed(1)}</span>
+                        <span class="text-amber-400">
+                          ★ {item.imdb_rating.toFixed(1)}
                         </span>
                       )}
                     </div>
                   </div>
 
                   {/* Title */}
-                  <h3 class="text-base sm:text-lg font-bold text-white leading-snug group-hover:text-purple-300 transition-colors">
+                  <h3 class="text-sm sm:text-base font-semibold text-zinc-100 leading-snug">
                     {item.title}
                   </h3>
 
                   {item.original_title && item.original_title !== item.title && (
-                    <p class="text-xs text-slate-400 italic mt-0.5">
+                    <p class="text-xs text-zinc-400 mt-0.5 font-normal">
                       {item.original_title}
                     </p>
                   )}
 
-                  {/* Multi-User Ratings Badges */}
-                  <div class="mt-3 pt-2.5 border-t border-slate-800/80">
+                  {/* Multi-User Ratings */}
+                  <div class="mt-3 pt-2 border-t border-zinc-800/80">
                     {hasRatings ? (
-                      <div class="flex flex-wrap items-center gap-2">
-                        {item.ratings!.map((r) => {
-                          const isNano = r.user_nick.toLowerCase() === 'nano';
-                          const isVane = r.user_nick.toLowerCase() === 'vane';
-                          const badgeColor = isNano
-                            ? 'bg-purple-950/60 border-purple-800/60 text-purple-300'
-                            : isVane
-                            ? 'bg-pink-950/60 border-pink-800/60 text-pink-300'
-                            : 'bg-slate-950 border-slate-800 text-slate-300';
-
-                          return (
-                            <div
-                              key={r.user_nick}
-                              class={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl border text-xs font-semibold shadow-sm ${badgeColor}`}
-                            >
-                              <span class="font-bold">👤 {r.user_nick}:</span>
-                              {r.reaction ? (
-                                <span class="text-amber-300 font-bold">{r.reaction}</span>
-                              ) : r.rating !== undefined && r.rating !== null ? (
-                                <span class="text-amber-400 font-black flex items-center gap-0.5">
-                                  <span>★</span>
-                                  <span>{r.rating}</span>
-                                </span>
-                              ) : (
-                                <span class="text-slate-400">Visto</span>
-                              )}
-                              {r.comment && (
-                                <span class="text-slate-400 text-[11px] italic" title={r.comment}>
-                                  💬
-                                </span>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    ) : item.status === 'completed' && item.user_rating ? (
-                      <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-950 border border-slate-800 text-xs">
-                        {item.user_nick && <span class="text-purple-300 font-bold">👤 {item.user_nick}:</span>}
-                        <span class="text-amber-400 font-bold">★ {item.user_rating}</span>
+                      <div class="flex flex-wrap items-center gap-1.5">
+                        {item.ratings!.map((r) => (
+                          <div
+                            key={r.user_nick}
+                            class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-zinc-900 border border-zinc-800 text-xs font-mono text-zinc-300"
+                          >
+                            <span class="text-zinc-400">{r.user_nick}:</span>
+                            {r.reaction ? (
+                              <span class="text-zinc-200 font-sans">{r.reaction}</span>
+                            ) : r.rating !== undefined && r.rating !== null ? (
+                              <span class="text-amber-400 font-medium">★ {r.rating}</span>
+                            ) : (
+                              <span class="text-zinc-400">Visto</span>
+                            )}
+                            {r.comment && (
+                              <span class="text-zinc-500 text-[10px] truncate max-w-[90px]" title={r.comment}>
+                                ({r.comment})
+                              </span>
+                            )}
+                          </div>
+                        ))}
                       </div>
                     ) : (
-                      <span class="text-slate-500 italic text-[11px]">
-                        {item.status === 'plan_to_watch' ? '📌 Pendiente por ver' : 'Sin calificar'}
-                      </span>
+                      <div class="text-[11px] text-zinc-500 font-mono flex items-center justify-between">
+                        <span>Sin votos registrados</span>
+                        <button
+                          data-nav="item"
+                          onClick={() => handleOpenRatingModal(item, activeUser)}
+                          class="text-zinc-300 hover:underline cursor-pointer"
+                        >
+                          + Votar como {activeUser}
+                        </button>
+                      </div>
                     )}
                   </div>
 
-                  {/* Notes / Comments */}
+                  {/* Notes */}
                   {item.notes && (
-                    <p class="mt-2.5 text-xs text-slate-300 bg-slate-950/40 p-2.5 rounded-xl border border-slate-800/60 italic">
-                      "{item.notes}"
+                    <p class="mt-2 text-xs text-zinc-400 leading-relaxed bg-zinc-900/60 p-2 rounded border border-zinc-800/80 font-normal">
+                      {item.notes}
                     </p>
                   )}
                 </div>
 
-                {/* Action Buttons */}
-                <div class="mt-4 pt-3.5 border-t border-slate-800/80 flex flex-wrap items-center gap-2">
-                  {/* Calificar / Votar button - automatically geared to active user */}
-                  <button
-                    data-nav="item"
-                    onClick={() => handleOpenRatingModal(item, activeUser)}
-                    class={`flex-1 py-2 px-3 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-md ${
-                      isVaneActive
-                        ? 'bg-pink-600 hover:bg-pink-500 shadow-pink-950/30'
-                        : 'bg-purple-600 hover:bg-purple-500 shadow-purple-950/30'
-                    }`}
-                    title={`Calificar como ${myName}`}
-                  >
-                    <span>⭐</span>
-                    <span>{myVote ? `Editar mi voto (${myName})` : `Calificar como ${myName}`}</span>
-                  </button>
-
-                  {/* Partner vote shortcut if partner hasn't voted yet */}
-                  {!partnerVote && (
+                {/* Bottom Actions */}
+                <div class="mt-3.5 pt-2.5 border-t border-zinc-800/80 flex flex-wrap items-center justify-between gap-1.5">
+                  <div class="flex items-center gap-1.5">
+                    {/* Rate / Vote Button */}
                     <button
                       data-nav="item"
-                      onClick={() => handleOpenRatingModal(item, partnerName)}
-                      class="px-2.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold transition-colors border border-slate-700 flex items-center justify-center gap-1 cursor-pointer"
-                      title={`Votar como ${partnerName}`}
+                      onClick={() => handleOpenRatingModal(item, activeUser)}
+                      class="px-2.5 py-1 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 rounded text-xs font-medium border border-zinc-800 transition-colors cursor-pointer"
+                      title={`Calificar o modificar voto de ${activeUser}`}
                     >
-                      <span class="text-[11px]">+ {partnerName}</span>
+                      {myVote ? `★ Mi voto (${myVote.rating || myVote.reaction})` : `+ Votar (${activeUser})`}
                     </button>
-                  )}
 
-                  {/* Move back to Por Ver if completed */}
-                  {item.status === 'completed' && (
+                    {/* Move between tabs */}
                     <button
                       data-nav="item"
-                      onClick={() => handleMoveToPlanToWatch(item)}
-                      class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs transition-colors border border-slate-700 flex items-center justify-center cursor-pointer"
-                      title="Mover a Por Ver"
+                      onClick={() => handleToggleStatus(item)}
+                      class="px-2.5 py-1 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 rounded text-xs border border-zinc-800 transition-colors cursor-pointer"
+                      title={activeTab === 'plan_to_watch' ? 'Mover a Vistas' : 'Mover a Por Ver'}
                     >
-                      ↩
+                      {activeTab === 'plan_to_watch' ? '✓ Marcar vista' : '📌 Pasar a Por Ver'}
                     </button>
-                  )}
+                  </div>
 
-                  {/* Search in Torrents */}
-                  <button
-                    data-nav="item"
-                    onClick={() => onSearchMovie(item.original_title || item.title)}
-                    class="p-2 bg-slate-800 hover:bg-slate-700 text-emerald-400 rounded-xl text-xs transition-colors border border-slate-700 flex items-center justify-center cursor-pointer"
-                    title="Buscar en Torrents"
-                  >
-                    <svg class="w-4 h-4 fill-none stroke-current" stroke-width="2" viewBox="0 0 24 24">
-                      <circle cx="11" cy="11" r="8" />
-                      <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                    </svg>
-                  </button>
+                  <div class="flex items-center gap-1">
+                    {/* Search in Torrents */}
+                    <button
+                      data-nav="item"
+                      onClick={() => onSearchMovie(item.original_title || item.title)}
+                      class="p-1.5 bg-zinc-100 hover:bg-white text-zinc-950 rounded text-xs transition-colors cursor-pointer shadow-sm"
+                      title="Buscar descargas"
+                    >
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                    </button>
 
-                  {/* Edit basic info */}
-                  <button
-                    data-nav="item"
-                    onClick={() => handleOpenEditModal(item)}
-                    class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs transition-colors border border-slate-700 flex items-center justify-center cursor-pointer"
-                    title="Editar detalles"
-                  >
-                    ✏️
-                  </button>
+                    {/* Edit Title */}
+                    <button
+                      data-nav="item"
+                      onClick={() => handleOpenEditModal(item)}
+                      class="p-1.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 rounded text-xs border border-zinc-800 transition-colors cursor-pointer"
+                      title="Editar título"
+                    >
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                      </svg>
+                    </button>
 
-                  {/* Delete */}
-                  <button
-                    data-nav="item"
-                    onClick={() => handleDeleteItem(item)}
-                    class="p-2 bg-slate-800 hover:bg-rose-900/60 text-slate-400 hover:text-rose-300 rounded-xl text-xs transition-colors border border-slate-700 flex items-center justify-center cursor-pointer"
-                    title="Eliminar de la lista"
-                  >
-                    🗑️
-                  </button>
+                    {/* Delete item */}
+                    <button
+                      data-nav="item"
+                      onClick={() => handleDeleteItem(item)}
+                      class="p-1.5 bg-zinc-900 hover:bg-rose-950/40 text-zinc-400 hover:text-rose-400 rounded text-xs border border-zinc-800 transition-colors cursor-pointer"
+                      title="Eliminar de la lista"
+                    >
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </div>
                 </div>
               </div>
             );
@@ -685,120 +650,95 @@ export function WatchlistView({ onSearchMovie }: WatchlistViewProps) {
         </div>
       )}
 
-      {/* ─── MODAL: CALIFICAR / VOTAR MULTI-USUARIO (Nano & Vane) ─── */}
+      {/* ─── MODAL: CALIFICAR / VOTAR MULTI-USUARIO ─── */}
       {ratingModalItem && (
         <div
-          class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto"
+          class="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 overflow-y-auto"
           onClick={() => setRatingModalItem(null)}
         >
           <div
-            class="bg-slate-900 border border-slate-700 rounded-2xl max-w-md w-full p-5 sm:p-6 shadow-2xl space-y-4 my-auto"
+            class="bg-zinc-950 border border-zinc-800 rounded-lg max-w-sm w-full p-5 shadow-2xl space-y-4 my-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Header */}
-            <div class="flex items-center justify-between pb-3 border-b border-slate-800">
-              <h3 class="text-base font-bold text-white flex items-center gap-2">
-                <span>⭐ Calificar Título</span>
+            <div class="flex items-center justify-between pb-2 border-b border-zinc-800">
+              <h3 class="text-sm font-semibold text-zinc-100">
+                Calificar título
               </h3>
               <button
                 data-nav="item"
                 onClick={() => setRatingModalItem(null)}
-                class="text-slate-400 hover:text-white p-1 text-sm rounded-lg cursor-pointer"
+                class="text-zinc-400 hover:text-zinc-100 p-1 text-xs rounded cursor-pointer"
               >
                 ✕
               </button>
             </div>
 
-            {/* Title Info */}
-            <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800">
-              <h4 class="text-base font-bold text-white">
+            <div class="bg-zinc-900/60 p-2.5 rounded border border-zinc-800">
+              <h4 class="text-sm font-medium text-zinc-100">
                 {ratingModalItem.title}
               </h4>
               {ratingModalItem.year && (
-                <p class="text-xs text-slate-400 font-mono mt-0.5">
-                  {ratingModalItem.year} • {ratingModalItem.type === 'Series' ? 'Serie' : 'Película'}
+                <p class="text-xs text-zinc-400 font-mono mt-0.5">
+                  {ratingModalItem.year} · {ratingModalItem.type === 'Series' ? 'Serie' : 'Película'}
                 </p>
               )}
             </div>
 
-            {/* User Switcher Buttons */}
+            {/* User Switcher */}
             <div>
-              <label class="block text-xs font-bold text-slate-300 mb-1.5">
-                ¿Quién está votando?
+              <label class="block text-xs font-mono text-zinc-400 mb-1.5 uppercase">
+                Perfil de votación
               </label>
-              <div class="grid grid-cols-2 gap-2">
+              <div class="grid grid-cols-2 gap-2 mb-2">
                 <button
                   type="button"
                   data-nav="item"
                   onClick={() => handleSwitchRatingUser('Nano')}
-                  class={`py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer border ${
+                  class={`py-1.5 px-3 rounded text-xs font-medium transition-colors border cursor-pointer ${
                     ratingUser.toLowerCase() === 'nano'
-                      ? 'bg-purple-600 text-white border-purple-500 shadow-md shadow-purple-900/40'
-                      : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white'
+                      ? 'bg-zinc-800 text-zinc-100 border-zinc-600 shadow-sm'
+                      : 'bg-zinc-900 text-zinc-400 border-zinc-800'
                   }`}
                 >
-                  <span>👤</span>
-                  <span>Nano</span>
+                  Nano
                 </button>
 
                 <button
                   type="button"
                   data-nav="item"
                   onClick={() => handleSwitchRatingUser('Vane')}
-                  class={`py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer border ${
+                  class={`py-1.5 px-3 rounded text-xs font-medium transition-colors border cursor-pointer ${
                     ratingUser.toLowerCase() === 'vane'
-                      ? 'bg-pink-600 text-white border-pink-500 shadow-md shadow-pink-900/40'
-                      : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white'
+                      ? 'bg-zinc-800 text-zinc-100 border-zinc-600 shadow-sm'
+                      : 'bg-zinc-900 text-zinc-400 border-zinc-800'
                   }`}
                 >
-                  <span>👤</span>
-                  <span>Vane</span>
+                  Vane
                 </button>
               </div>
 
-              {/* Custom Nick input if someone else */}
-              <div class="mt-2">
-                <input
-                  type="text"
-                  data-nav="item"
-                  placeholder="O escribe otro nombre (ej: Invitado)..."
-                  value={ratingUser}
-                  onInput={(e) => setRatingUser((e.target as HTMLInputElement).value)}
-                  class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-purple-500"
-                />
-              </div>
+              <input
+                type="text"
+                data-nav="item"
+                placeholder="Otro nombre..."
+                value={ratingUser}
+                onInput={(e) => setRatingUser((e.target as HTMLInputElement).value)}
+                class="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-1.5 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-zinc-500 font-mono"
+              />
             </div>
 
-            {/* Existing Votes of other users for reference */}
-            {ratingModalItem.ratings && ratingModalItem.ratings.length > 0 && (
-              <div class="p-2.5 bg-slate-950/80 border border-slate-800/80 rounded-xl text-xs">
-                <span class="text-slate-400 text-[11px] block font-semibold mb-1">Votos actuales en este título:</span>
-                <div class="flex flex-wrap gap-2">
-                  {ratingModalItem.ratings.map((r) => (
-                    <span
-                      key={r.user_nick}
-                      class="px-2 py-0.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-300 text-[11px]"
-                    >
-                      <strong>{r.user_nick}:</strong> {r.reaction || (r.rating ? `★ ${r.rating}` : 'Visto')}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
             {/* Star Rating Grid */}
-            <div class="p-3.5 bg-slate-950 border border-slate-800 rounded-xl space-y-2">
+            <div class="p-3 bg-zinc-900/60 border border-zinc-800 rounded space-y-2">
               <div class="flex items-center justify-between">
-                <label class="text-xs font-bold text-amber-300">
-                  Calificación en estrellas:
+                <label class="text-xs font-mono text-zinc-400 uppercase">
+                  Puntuación
                 </label>
-                <span class="text-xs font-mono text-amber-300 font-bold">
+                <span class="text-xs font-mono text-amber-400 font-medium">
                   {selectedRating !== null ? `★ ${selectedRating} de 5` : 'Sin estrellas'}
                 </span>
               </div>
 
-              {/* Quick Star Buttons */}
-              <div class="grid grid-cols-5 gap-1.5">
+              <div class="grid grid-cols-5 gap-1">
                 {STAR_OPTIONS.map((val) => {
                   const isSelected = selectedRating === val && !selectedReaction;
                   return (
@@ -810,39 +750,23 @@ export function WatchlistView({ onSearchMovie }: WatchlistViewProps) {
                         setSelectedRating(val);
                         setSelectedReaction(null);
                       }}
-                      class={`py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                      class={`py-1 rounded text-xs font-mono transition-colors cursor-pointer border ${
                         isSelected
-                          ? 'bg-amber-400 text-slate-950 font-black shadow-md shadow-amber-400/30'
-                          : 'bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800'
+                          ? 'bg-zinc-800 text-zinc-100 border-zinc-600 font-medium'
+                          : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:text-zinc-200'
                       }`}
                     >
                       ★ {val}
                     </button>
                   );
                 })}
-                <button
-                  type="button"
-                  data-nav="item"
-                  onClick={() => {
-                    setSelectedRating(6.0);
-                    setSelectedReaction(null);
-                  }}
-                  class={`py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                    selectedRating === 6.0 && !selectedReaction
-                      ? 'bg-amber-400 text-slate-950 font-black shadow-md shadow-amber-400/30'
-                      : 'bg-slate-900 hover:bg-slate-800 text-amber-400 border border-slate-800'
-                  }`}
-                  title="¡6 estrellas legendarias!"
-                >
-                  ★ 6!
-                </button>
               </div>
             </div>
 
-            {/* Fun Reactions Row */}
+            {/* Reactions */}
             <div>
-              <label class="block text-xs font-bold text-slate-300 mb-1.5">
-                O una reacción especial:
+              <label class="block text-xs font-mono text-zinc-400 mb-1.5 uppercase">
+                O una reacción
               </label>
               <div class="flex flex-wrap gap-1.5">
                 {REACTION_OPTIONS.map((react) => {
@@ -858,10 +782,10 @@ export function WatchlistView({ onSearchMovie }: WatchlistViewProps) {
                           setSelectedRating(0.0);
                         }
                       }}
-                      class={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer border ${
+                      class={`px-2.5 py-1 rounded text-xs font-medium transition-colors cursor-pointer border ${
                         isSelected
-                          ? 'bg-purple-600 text-white border-purple-400 shadow-sm'
-                          : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white'
+                          ? 'bg-zinc-800 text-zinc-100 border-zinc-600'
+                          : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:text-zinc-200'
                       }`}
                     >
                       {react.label}
@@ -871,24 +795,23 @@ export function WatchlistView({ onSearchMovie }: WatchlistViewProps) {
               </div>
             </div>
 
-            {/* Comment / Note */}
+            {/* Comment */}
             <div>
-              <label class="block text-xs font-bold text-slate-300 mb-1">
-                Comentario de {ratingUser} <span class="text-slate-500 font-normal">(Opcional)</span>:
+              <label class="block text-xs font-mono text-zinc-400 mb-1 uppercase">
+                Comentario de {ratingUser} <span class="text-zinc-600 normal-case">(opcional)</span>
               </label>
               <input
                 type="text"
                 data-nav="item"
-                placeholder="Ej: Me encantó el final, muy recomendada..."
+                placeholder="Opinión rápida..."
                 value={ratingComment}
                 onInput={(e) => setRatingComment((e.target as HTMLInputElement).value)}
-                class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500"
+                class="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-1.5 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-zinc-500"
               />
             </div>
 
             {/* Modal Actions */}
-            <div class="pt-2 flex items-center justify-between gap-2 border-t border-slate-800">
-              {/* Delete rating button if this user has already voted */}
+            <div class="pt-2 flex items-center justify-between gap-2 border-t border-zinc-800">
               {(ratingModalItem.ratings || []).some(
                 (r) => r.user_nick.toLowerCase() === ratingUser.trim().toLowerCase()
               ) ? (
@@ -897,9 +820,9 @@ export function WatchlistView({ onSearchMovie }: WatchlistViewProps) {
                   data-nav="item"
                   onClick={handleDeleteRating}
                   disabled={isRatingSubmitting}
-                  class="px-3 py-2 bg-rose-950/60 hover:bg-rose-900 border border-rose-800/80 text-rose-300 rounded-xl text-xs font-bold cursor-pointer"
+                  class="px-2.5 py-1 text-rose-400 hover:text-rose-300 text-xs cursor-pointer font-medium"
                 >
-                  Quitar mi voto
+                  Borrar voto
                 </button>
               ) : <div></div>}
 
@@ -908,7 +831,7 @@ export function WatchlistView({ onSearchMovie }: WatchlistViewProps) {
                   type="button"
                   data-nav="item"
                   onClick={() => setRatingModalItem(null)}
-                  class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold cursor-pointer"
+                  class="px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 rounded text-xs font-medium border border-zinc-800 cursor-pointer"
                 >
                   Cancelar
                 </button>
@@ -917,9 +840,9 @@ export function WatchlistView({ onSearchMovie }: WatchlistViewProps) {
                   data-nav="item"
                   disabled={isRatingSubmitting}
                   onClick={handleSaveRating}
-                  class="px-5 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-xs font-bold shadow-md shadow-purple-900/40 cursor-pointer disabled:opacity-50"
+                  class="px-3.5 py-1.5 bg-zinc-100 hover:bg-white text-zinc-950 rounded text-xs font-medium cursor-pointer shadow-sm disabled:opacity-50"
                 >
-                  {isRatingSubmitting ? 'Guardando...' : `Guardar voto de ${ratingUser}`}
+                  {isRatingSubmitting ? 'Guardando...' : 'Guardar voto'}
                 </button>
               </div>
             </div>
@@ -930,53 +853,51 @@ export function WatchlistView({ onSearchMovie }: WatchlistViewProps) {
       {/* ─── MODAL: AGREGAR O EDITAR TÍTULO ─── */}
       {isAddModalOpen && (
         <div
-          class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto"
+          class="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 overflow-y-auto"
           onClick={() => setIsAddModalOpen(false)}
         >
           <div
-            class="bg-slate-900 border border-slate-700 rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-2xl space-y-4 my-auto"
+            class="bg-zinc-950 border border-zinc-800 rounded-lg max-w-md w-full p-5 shadow-2xl space-y-4 my-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            <div class="flex items-center justify-between pb-3 border-b border-slate-800">
-              <h3 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
-                <span>{editingItem ? '✏️ Editar Título' : '➕ Agregar a Mi Lista'}</span>
+            <div class="flex items-center justify-between pb-2 border-b border-zinc-800">
+              <h3 class="text-sm font-semibold text-zinc-100">
+                {editingItem ? 'Editar título' : 'Añadir título a la lista'}
               </h3>
               <button
                 data-nav="item"
                 onClick={() => setIsAddModalOpen(false)}
-                class="text-slate-400 hover:text-white p-1 text-sm rounded-lg"
+                class="text-zinc-400 hover:text-zinc-100 p-1 text-xs rounded"
               >
                 ✕
               </button>
             </div>
 
             {errorMsg && (
-              <div class="p-3 bg-rose-500/20 border border-rose-500/40 rounded-xl text-rose-300 text-xs font-semibold">
-                ⚠️ {errorMsg}
+              <div class="p-2.5 bg-rose-950/40 border border-rose-800/80 rounded text-rose-300 text-xs">
+                {errorMsg}
               </div>
             )}
 
-            <form onSubmit={handleSaveItem} class="space-y-3.5">
-              {/* Title */}
+            <form onSubmit={handleSaveItem} class="space-y-3">
               <div>
-                <label class="block text-xs font-bold text-slate-300 mb-1">
+                <label class="block text-xs font-mono text-zinc-400 mb-1 uppercase">
                   Título <span class="text-rose-400">*</span>
                 </label>
                 <input
                   type="text"
                   data-nav="item"
                   required
-                  placeholder="Ej: Interstellar, El Padrino, Breaking Bad..."
+                  placeholder="Ej: Interstellar, Breaking Bad..."
                   value={formTitle}
                   onInput={(e) => setFormTitle((e.target as HTMLInputElement).value)}
-                  class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-purple-500"
+                  class="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-1.5 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-zinc-500"
                 />
               </div>
 
-              {/* Original Title (Optional) */}
               <div>
-                <label class="block text-xs font-bold text-slate-300 mb-1">
-                  Título Original <span class="text-slate-500 font-normal">(Opcional, para búsquedas en inglés)</span>
+                <label class="block text-xs font-mono text-zinc-400 mb-1 uppercase">
+                  Título original <span class="text-zinc-600 normal-case">(opcional)</span>
                 </label>
                 <input
                   type="text"
@@ -984,72 +905,67 @@ export function WatchlistView({ onSearchMovie }: WatchlistViewProps) {
                   placeholder="Ej: The Godfather"
                   value={formOriginalTitle}
                   onInput={(e) => setFormOriginalTitle((e.target as HTMLInputElement).value)}
-                  class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-purple-500"
+                  class="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-1.5 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-zinc-500"
                 />
               </div>
 
-              {/* Type & Status selection */}
-              <div class="grid grid-cols-2 gap-3">
+              <div class="grid grid-cols-2 gap-2">
                 <div>
-                  <label class="block text-xs font-bold text-slate-300 mb-1">Tipo</label>
+                  <label class="block text-xs font-mono text-zinc-400 mb-1 uppercase">Tipo</label>
                   <select
                     data-nav="item"
                     value={formType}
                     onChange={(e) => setFormType((e.target as HTMLSelectElement).value as any)}
-                    class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-purple-500"
+                    class="w-full bg-zinc-900 border border-zinc-800 rounded px-2.5 py-1.5 text-xs text-zinc-100 focus:outline-none focus:border-zinc-500 font-mono"
                   >
-                    <option value="Movie">🎬 Película</option>
-                    <option value="Series">📺 Serie</option>
+                    <option value="Movie">Película</option>
+                    <option value="Series">Serie</option>
                   </select>
                 </div>
 
                 <div>
-                  <label class="block text-xs font-bold text-slate-300 mb-1">Lista destino</label>
+                  <label class="block text-xs font-mono text-zinc-400 mb-1 uppercase">Lista</label>
                   <select
                     data-nav="item"
                     value={formStatus}
                     onChange={(e) => setFormStatus((e.target as HTMLSelectElement).value as any)}
-                    class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-purple-500"
+                    class="w-full bg-zinc-900 border border-zinc-800 rounded px-2.5 py-1.5 text-xs text-zinc-100 focus:outline-none focus:border-zinc-500 font-mono"
                   >
-                    <option value="completed">✓ Vista</option>
-                    <option value="plan_to_watch">📌 Por Ver</option>
+                    <option value="completed">Vista</option>
+                    <option value="plan_to_watch">Por Ver</option>
                   </select>
                 </div>
               </div>
 
-              {/* Nick & Year */}
-              <div class="grid grid-cols-2 gap-3">
+              <div class="grid grid-cols-2 gap-2">
                 <div>
-                  <label class="block text-xs font-bold text-slate-300 mb-1">
-                    Tu Nick:
-                  </label>
+                  <label class="block text-xs font-mono text-zinc-400 mb-1 uppercase">Perfil</label>
                   <input
                     type="text"
                     data-nav="item"
-                    placeholder="Ej: Nano, Vane..."
+                    placeholder="Nano, Vane..."
                     value={formNick}
                     onInput={(e) => setFormNick((e.target as HTMLInputElement).value)}
-                    class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-purple-500 font-semibold"
+                    class="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-1.5 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-zinc-500 font-mono"
                   />
                 </div>
 
                 <div>
-                  <label class="block text-xs font-bold text-slate-300 mb-1">Año</label>
+                  <label class="block text-xs font-mono text-zinc-400 mb-1 uppercase">Año</label>
                   <input
                     type="number"
                     data-nav="item"
-                    placeholder="Ej: 2024"
+                    placeholder="2024"
                     value={formYear}
                     onInput={(e) => setFormYear((e.target as HTMLInputElement).value)}
-                    class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-purple-500 font-mono"
+                    class="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-1.5 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-zinc-500 font-mono"
                   />
                 </div>
               </div>
 
-              {/* IMDb rating (optional) */}
               <div>
-                <label class="block text-xs font-bold text-slate-300 mb-1">
-                  Calificación IMDb <span class="text-slate-500 font-normal">(Opcional, 1.0 a 10.0)</span>
+                <label class="block text-xs font-mono text-zinc-400 mb-1 uppercase">
+                  Calificación IMDb <span class="text-zinc-600 normal-case">(opcional)</span>
                 </label>
                 <input
                   type="number"
@@ -1057,29 +973,28 @@ export function WatchlistView({ onSearchMovie }: WatchlistViewProps) {
                   min="1"
                   max="10"
                   data-nav="item"
-                  placeholder="Ej: 8.8"
+                  placeholder="8.5"
                   value={formImdbRating}
                   onInput={(e) => setFormImdbRating((e.target as HTMLInputElement).value)}
-                  class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-purple-500 font-mono"
+                  class="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-1.5 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-zinc-500 font-mono"
                 />
               </div>
 
-              {/* Star Rating (1 to 5) - shown especially if completed */}
               {formStatus === 'completed' && (
-                <div class="p-3 bg-slate-950/70 border border-slate-800 rounded-xl">
-                  <label class="block text-xs font-bold text-amber-300 mb-1.5 flex items-center justify-between">
-                    <span>Calificación de {formNick || 'usuario'}:</span>
-                    <span class="font-mono text-sm font-black">{formRating} / 5 estrellas</span>
-                  </label>
-                  <div class="flex items-center gap-2">
+                <div class="p-2.5 bg-zinc-900/60 border border-zinc-800 rounded space-y-1.5">
+                  <div class="flex items-center justify-between text-xs font-mono text-zinc-400 uppercase">
+                    <span>Calificación de {formNick || 'usuario'}</span>
+                    <span class="text-amber-400">★ {formRating} / 5</span>
+                  </div>
+                  <div class="flex items-center gap-1.5">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <button
                         type="button"
                         key={star}
                         data-nav="item"
                         onClick={() => setFormRating(star)}
-                        class={`text-2xl sm:text-3xl transition-transform hover:scale-125 cursor-pointer ${
-                          star <= formRating ? 'text-amber-400' : 'text-slate-700'
+                        class={`text-xl transition-colors cursor-pointer ${
+                          star <= formRating ? 'text-amber-400' : 'text-zinc-700'
                         }`}
                       >
                         ★
@@ -1089,28 +1004,26 @@ export function WatchlistView({ onSearchMovie }: WatchlistViewProps) {
                 </div>
               )}
 
-              {/* Notes */}
               <div>
-                <label class="block text-xs font-bold text-slate-300 mb-1">
-                  Comentario o nota <span class="text-slate-500 font-normal">(Opcional)</span>
+                <label class="block text-xs font-mono text-zinc-400 mb-1 uppercase">
+                  Nota personal <span class="text-zinc-600 normal-case">(opcional)</span>
                 </label>
                 <textarea
                   data-nav="item"
                   rows={2}
-                  placeholder="Opinión rápida o motivo para verla..."
+                  placeholder="Breve apunte o comentario..."
                   value={formNotes}
                   onInput={(e) => setFormNotes((e.target as HTMLTextAreaElement).value)}
-                  class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-purple-500 resize-none"
+                  class="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-1.5 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-zinc-500 resize-none"
                 />
               </div>
 
-              {/* Buttons */}
-              <div class="pt-2 flex items-center justify-end gap-3 border-t border-slate-800">
+              <div class="pt-2 flex items-center justify-end gap-2 border-t border-zinc-800">
                 <button
                   type="button"
                   data-nav="item"
                   onClick={() => setIsAddModalOpen(false)}
-                  class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl text-xs sm:text-sm cursor-pointer"
+                  class="px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 rounded text-xs font-medium border border-zinc-800 cursor-pointer"
                 >
                   Cancelar
                 </button>
@@ -1118,9 +1031,9 @@ export function WatchlistView({ onSearchMovie }: WatchlistViewProps) {
                   type="submit"
                   data-nav="item"
                   disabled={isSubmitting}
-                  class="px-5 py-2 bg-purple-600 hover:bg-purple-500 disabled:opacity-50 text-white font-bold rounded-xl text-xs sm:text-sm transition-all cursor-pointer shadow-lg shadow-purple-900/40"
+                  class="px-4 py-1.5 bg-zinc-100 hover:bg-white text-zinc-950 font-medium rounded text-xs transition-colors cursor-pointer shadow-sm"
                 >
-                  {isSubmitting ? 'Guardando...' : editingItem ? 'Actualizar' : 'Guardar en Mi Lista'}
+                  {isSubmitting ? 'Guardando...' : editingItem ? 'Actualizar' : 'Guardar título'}
                 </button>
               </div>
             </form>

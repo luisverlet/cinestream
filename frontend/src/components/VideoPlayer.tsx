@@ -959,8 +959,8 @@ export function VideoPlayer({ itemId, title, initialTicks = 0, onClose }: VideoP
 
       {/* Subtitle Notice Toast */}
       {subNotice && (
-        <div class="absolute top-8 left-1/2 -translate-x-1/2 bg-slate-900/95 border border-emerald-500/40 text-emerald-300 px-6 py-3 rounded-full text-sm font-medium shadow-2xl backdrop-blur-md z-50 animate-fade-in flex items-center gap-3">
-          {fetchingSub && <span class="w-4 h-4 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin"></span>}
+        <div class="absolute top-6 left-1/2 -translate-x-1/2 bg-zinc-900/95 border border-zinc-700 text-zinc-100 px-4 py-2 rounded-md text-xs font-mono shadow-2xl z-50 flex items-center gap-2.5">
+          {fetchingSub && <span class="w-3.5 h-3.5 border-2 border-zinc-400 border-t-transparent rounded-full animate-spin"></span>}
           <span>{subNotice}</span>
         </div>
       )}
@@ -968,37 +968,34 @@ export function VideoPlayer({ itemId, title, initialTicks = 0, onClose }: VideoP
       {/* Subtitle Selection Modal */}
       {subModalOpen && (
         <div
-          class="absolute inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-6"
+          class="absolute inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
           onClick={(e) => { e.stopPropagation(); setSubModalOpen(false); }}
         >
           <div
-            class="bg-slate-900 border border-slate-700/80 rounded-2xl p-6 max-w-md w-full shadow-2xl"
+            class="bg-zinc-950 border border-zinc-800 rounded-lg p-5 max-w-sm w-full shadow-2xl space-y-3"
             onClick={(e) => e.stopPropagation()}
           >
-            <div class="flex items-center justify-between pb-4 border-b border-slate-800">
-              <h3 class="text-lg font-bold text-white flex items-center gap-2">
+            <div class="flex items-center justify-between pb-2.5 border-b border-zinc-800">
+              <h3 class="text-sm font-semibold text-zinc-100 flex items-center gap-2">
                 <span>Subtítulos</span>
-                <span class="text-xs px-2 py-0.5 bg-emerald-500/20 text-emerald-400 rounded-full font-mono">
-                  ES auto-activo
-                </span>
               </h3>
               <button
                 data-nav="item"
                 onClick={() => setSubModalOpen(false)}
-                class="text-slate-400 hover:text-white p-1 text-sm rounded-lg"
+                class="text-zinc-400 hover:text-white p-1 text-xs rounded"
               >
-                ✕ Cerrar
+                ✕
               </button>
             </div>
 
-            <div class="my-4 max-h-64 overflow-y-auto space-y-2 pr-1">
+            <div class="my-3 max-h-60 overflow-y-auto space-y-1.5 pr-1">
               <button
                 data-nav="item"
                 onClick={() => handleSelectSubtitle(-1)}
-                class={`w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-all ${
+                class={`w-full text-left px-3 py-2 rounded text-xs font-mono transition-colors border ${
                   selectedSub === -1
-                    ? 'bg-emerald-600 text-white font-bold ring-2 ring-emerald-400'
-                    : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700'
+                    ? 'bg-zinc-800 text-zinc-100 border-zinc-600 font-medium'
+                    : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:text-zinc-200'
                 }`}
               >
                 Desactivados
@@ -1012,15 +1009,15 @@ export function VideoPlayer({ itemId, title, initialTicks = 0, onClose }: VideoP
                     key={sub.index}
                     data-nav="item"
                     onClick={() => handleSelectSubtitle(sub.index)}
-                    class={`w-full text-left px-4 py-3 rounded-xl text-sm font-medium flex items-center justify-between transition-all ${
+                    class={`w-full text-left px-3 py-2 rounded text-xs font-mono flex items-center justify-between transition-colors border ${
                       selectedSub === sub.index
-                        ? 'bg-emerald-600 text-white font-bold ring-2 ring-emerald-400'
-                        : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700'
+                        ? 'bg-zinc-800 text-zinc-100 border-zinc-600 font-medium'
+                        : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:text-zinc-200'
                     }`}
                   >
-                    <span>{sub.title || sub.language || `Pista ${sub.index + 1}`}</span>
+                    <span class="truncate">{sub.title || sub.language || `Pista ${sub.index + 1}`}</span>
                     {isSpa && (
-                      <span class="text-xs bg-emerald-400/20 text-emerald-300 px-2 py-0.5 rounded font-mono">
+                      <span class="text-[10px] bg-zinc-800 text-zinc-300 px-1.5 py-0.2 rounded border border-zinc-700 ml-2">
                         Español
                       </span>
                     )}
@@ -1029,22 +1026,20 @@ export function VideoPlayer({ itemId, title, initialTicks = 0, onClose }: VideoP
               })}
             </div>
 
-            <div class="pt-3 border-t border-slate-800 flex flex-col gap-2">
+            <div class="pt-2 border-t border-zinc-800">
               <button
                 data-nav="item"
                 disabled={fetchingSub}
                 onClick={handleFetchSpanishSubtitles}
-                class="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-semibold rounded-xl text-sm transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-900/30"
+                class="w-full py-2 px-3 bg-zinc-100 hover:bg-white disabled:opacity-50 text-zinc-950 font-medium rounded text-xs transition-colors flex items-center justify-center gap-2 shadow-sm cursor-pointer"
               >
                 {fetchingSub ? (
                   <>
-                    <span class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                    <span class="w-3.5 h-3.5 border-2 border-zinc-950 border-t-transparent rounded-full animate-spin"></span>
                     <span>Descargando...</span>
                   </>
                 ) : (
-                  <>
-                    <span>Descargar subtítulos en español al instante</span>
-                  </>
+                  <span>Descargar subtítulos en español</span>
                 )}
               </button>
             </div>
@@ -1055,27 +1050,27 @@ export function VideoPlayer({ itemId, title, initialTicks = 0, onClose }: VideoP
       {/* Quality Selection Modal */}
       {qualityModalOpen && (
         <div
-          class="absolute inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-6"
+          class="absolute inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
           onClick={(e) => { e.stopPropagation(); setQualityModalOpen(false); }}
         >
           <div
-            class="bg-slate-900 border border-slate-700/80 rounded-2xl p-6 max-w-md w-full shadow-2xl"
+            class="bg-zinc-950 border border-zinc-800 rounded-lg p-5 max-w-sm w-full shadow-2xl space-y-3"
             onClick={(e) => e.stopPropagation()}
           >
-            <div class="flex items-center justify-between pb-4 border-b border-slate-800">
-              <h3 class="text-lg font-bold text-white flex items-center gap-2">
-                <span>⚙ Calidad de Reproducción</span>
+            <div class="flex items-center justify-between pb-2.5 border-b border-zinc-800">
+              <h3 class="text-sm font-semibold text-zinc-100">
+                Calidad de reproducción
               </h3>
               <button
                 data-nav="item"
                 onClick={() => setQualityModalOpen(false)}
-                class="text-slate-400 hover:text-white p-1 text-sm rounded-lg"
+                class="text-zinc-400 hover:text-white p-1 text-xs rounded"
               >
-                ✕ Cerrar
+                ✕
               </button>
             </div>
 
-            <div class="my-4 max-h-64 overflow-y-auto space-y-2 pr-1">
+            <div class="my-3 max-h-60 overflow-y-auto space-y-1.5 pr-1">
               {(streamInfo?.qualities || []).map((q) => {
                 const isSelected = selectedQuality === q.id;
                 // Block Direct Play for browser-incompatible containers (MKV, HEVC, etc.)
@@ -1089,33 +1084,28 @@ export function VideoPlayer({ itemId, title, initialTicks = 0, onClose }: VideoP
                     data-nav="item"
                     disabled={isDisabled}
                     onClick={() => changeQuality(q.id)}
-                    class={`w-full text-left px-4 py-3 rounded-xl text-sm font-medium flex items-center justify-between transition-all ${
+                    class={`w-full text-left px-3 py-2 rounded text-xs font-mono flex items-center justify-between transition-colors border ${
                       isDisabled
-                        ? 'opacity-40 cursor-not-allowed bg-slate-800/40 text-slate-500'
+                        ? 'opacity-30 cursor-not-allowed bg-zinc-950 text-zinc-600 border-zinc-900'
                         : isSelected
-                          ? 'bg-emerald-600 text-white font-bold ring-2 ring-emerald-400'
-                          : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700'
+                          ? 'bg-zinc-800 text-zinc-100 border-zinc-600 font-medium'
+                          : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:text-zinc-200'
                     }`}
                   >
                     <span>{q.label}</span>
                     {q.id === '720p' && (
-                      <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded font-mono">
-                        YouTube Fluida
+                      <span class="text-[10px] bg-zinc-800 text-zinc-300 px-1.5 py-0.2 rounded border border-zinc-700">
+                        Recomendado
                       </span>
                     )}
                     {q.id === 'direct' && isDirectCompatible && (
-                      <span class="text-xs bg-cyan-500/20 text-cyan-300 px-2 py-0.5 rounded font-mono">
-                        0% CPU Direct
+                      <span class="text-[10px] bg-zinc-800 text-zinc-300 px-1.5 py-0.2 rounded border border-zinc-700">
+                        Direct Stream
                       </span>
                     )}
                     {q.id === 'direct' && !isDirectCompatible && (
-                      <span class="text-xs bg-red-500/20 text-red-400 px-2 py-0.5 rounded font-mono">
-                        No compatible ({(streamInfo?.container || '?').toUpperCase()})
-                      </span>
-                    )}
-                    {q.id === '1080p' && (
-                      <span class="text-xs bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded font-mono">
-                        FHD Original
+                      <span class="text-[10px] text-zinc-500">
+                        Incompatible ({(streamInfo?.container || '?').toUpperCase()})
                       </span>
                     )}
                   </button>
@@ -1123,8 +1113,8 @@ export function VideoPlayer({ itemId, title, initialTicks = 0, onClose }: VideoP
               })}
             </div>
 
-            <p class="text-[11px] text-slate-400 pt-2 border-t border-slate-800 text-center">
-              💡 <strong>720p HD</strong> está calibrada al estándar de YouTube para máxima fluidez sin cortes desde cualquier red o dispositivo.
+            <p class="text-[11px] text-zinc-500 pt-2 border-t border-zinc-800 font-mono text-center">
+              720p HD está optimizado para evitar cortes en conexiones lentas o remotas.
             </p>
           </div>
         </div>
@@ -1133,35 +1123,35 @@ export function VideoPlayer({ itemId, title, initialTicks = 0, onClose }: VideoP
       {/* On-screen Controls Overlay */}
       {!error && (
         <div
-          class={`absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-black/70 flex flex-col justify-between p-[4vw] transition-opacity duration-300 ${
+          class={`absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-black/70 flex flex-col justify-between p-4 sm:p-[4vw] transition-opacity duration-200 ${
             showControls ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
           }`}
         >
-        {/* Top bar: Back, Title, Subtitle Action */}
+        {/* Top bar: Back, Title, Actions */}
         <div class="flex items-center justify-between gap-2">
-          <div class="flex items-center gap-2 sm:gap-4 min-w-0 flex-1">
+          <div class="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
             <button
               data-nav="item"
               data-nav-default="true"
               onClick={handleExit}
-              class="px-2.5 py-1.5 sm:px-4 sm:py-2 bg-slate-800/80 hover:bg-slate-700 text-white rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 backdrop-blur-md border border-slate-700/50 flex-none"
+              class="px-3 py-1.5 bg-zinc-900/90 hover:bg-zinc-800 text-zinc-200 rounded-md text-xs font-medium border border-zinc-700/80 flex items-center gap-1.5 flex-none transition-colors cursor-pointer"
             >
-              <span class="text-emerald-400">←</span>
+              <span>←</span>
               <span class="hidden xs:inline sm:inline">Salir</span>
             </button>
-            <h2 class="text-xs sm:text-base md:text-xl font-bold text-white tracking-wide truncate max-w-[120px] xs:max-w-[180px] sm:max-w-xs md:max-w-md">
+            <h2 class="text-xs sm:text-sm md:text-base font-semibold text-zinc-100 tracking-tight truncate max-w-[140px] xs:max-w-[200px] sm:max-w-md">
               {title}
             </h2>
           </div>
 
-          <div class="flex items-center gap-1.5 sm:gap-2.5 flex-none">
+          <div class="flex items-center gap-1.5 sm:gap-2 flex-none">
             {/* Quality button */}
             <button
               data-nav="item"
               onClick={() => setQualityModalOpen(true)}
-              class="px-2 sm:px-2.5 py-1 sm:py-1.5 bg-slate-800/80 hover:bg-slate-700 text-white text-[11px] sm:text-xs font-semibold rounded-xl border border-slate-700/50 backdrop-blur-sm flex items-center gap-1"
+              class="px-2.5 py-1.5 bg-zinc-900/90 hover:bg-zinc-800 text-zinc-200 text-xs font-mono rounded-md border border-zinc-700/80 flex items-center gap-1 transition-colors cursor-pointer"
             >
-              <span class="text-emerald-400">⚙</span>
+              <span class="text-zinc-400">CAL:</span>
               <span>{selectedQuality.toUpperCase()}</span>
             </button>
 
@@ -1170,49 +1160,48 @@ export function VideoPlayer({ itemId, title, initialTicks = 0, onClose }: VideoP
               data-nav="item"
               disabled={fetchingSub}
               onClick={handleFetchSpanishSubtitles}
-              class="px-2 sm:px-3 py-1 sm:py-1.5 bg-emerald-600/90 hover:bg-emerald-500 text-white text-[11px] sm:text-xs font-semibold rounded-xl flex items-center gap-1 shadow-lg shadow-emerald-950/40 backdrop-blur-sm border border-emerald-400/30 transition-all"
-              title="Descargar subtítulo en español desde Bazarr / Jellyfin"
+              class="px-2.5 py-1.5 bg-zinc-900/90 hover:bg-zinc-800 text-zinc-200 text-xs font-mono rounded-md border border-zinc-700/80 flex items-center gap-1 transition-colors cursor-pointer"
+              title="Descargar subtítulo en español"
             >
-              <span class="hidden sm:inline">Subtítulos </span>
-              <span>ES</span>
+              <span>Sub ES</span>
             </button>
 
             {/* Subtitles track picker button */}
             <button
               data-nav="item"
               onClick={() => setSubModalOpen(true)}
-              class="px-2 sm:px-2.5 py-1 sm:py-1.5 bg-slate-800/80 hover:bg-slate-700 text-white text-[11px] sm:text-xs font-semibold rounded-xl border border-slate-700/50 backdrop-blur-sm"
+              class="px-2.5 py-1.5 bg-zinc-900/90 hover:bg-zinc-800 text-zinc-300 text-xs font-mono rounded-md border border-zinc-700/80 transition-colors cursor-pointer"
             >
-              <span class="hidden sm:inline">Pistas </span>
-              <span>({selectedSub === -1 ? 'Off' : 'Activo'})</span>
+              <span>Pistas</span>
+              <span class="text-zinc-500 ml-1">({selectedSub === -1 ? 'Off' : 'On'})</span>
             </button>
 
-            {/* Fullscreen shortcut in top bar */}
+            {/* Fullscreen shortcut */}
             <button
               data-nav="item"
               onClick={(e) => {
                 e.stopPropagation();
                 toggleFullscreen();
               }}
-              class="p-1.5 sm:px-2.5 sm:py-1.5 bg-slate-800/80 hover:bg-slate-700 text-white text-xs font-semibold rounded-xl border border-slate-700/50 backdrop-blur-sm flex items-center justify-center transition-all"
+              class="p-1.5 sm:px-2.5 sm:py-1.5 bg-zinc-900/90 hover:bg-zinc-800 text-zinc-200 text-xs rounded-md border border-zinc-700/80 flex items-center justify-center transition-colors cursor-pointer"
               title={isFullscreen ? 'Salir de pantalla completa' : 'Pantalla completa'}
               aria-label={isFullscreen ? 'Salir de pantalla completa' : 'Pantalla completa'}
             >
               {isFullscreen ? (
-                <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 4H5v4m0-4l5 5m6-5h4v4m0-4l-5 5M5 20h4v-4m-4 4l5-5m10 5l-5-5m5 5h-4v-4" />
+                <svg class="w-4 h-4 text-zinc-200" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 4H5v4m0-4l5 5m6-5h4v4m0-4l-5 5M5 20h4v-4m-4 4l5-5m10 5l-5-5m5 5h-4v-4" />
                 </svg>
               ) : (
-                <svg class="w-4 h-4 text-slate-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-5h-4m4 0v4m0-4l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                <svg class="w-4 h-4 text-zinc-200" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-5h-4m4 0v4m0-4l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
                 </svg>
               )}
             </button>
           </div>
         </div>
 
-        {/* Center Play/Pause button for touch devices */}
-        <div class="flex items-center justify-center gap-4 sm:gap-8 my-auto">
+        {/* Center Play/Pause button */}
+        <div class="flex items-center justify-center gap-6 my-auto">
           <button
             data-nav="item"
             onClick={() => {
@@ -1220,7 +1209,7 @@ export function VideoPlayer({ itemId, title, initialTicks = 0, onClose }: VideoP
                 videoRef.current.currentTime = Math.max(0, videoRef.current.currentTime - 10);
               }
             }}
-            class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-slate-800/70 hover:bg-slate-700 text-white flex items-center justify-center text-xs sm:text-sm font-bold backdrop-blur-md border border-slate-700/40 active:scale-90 transition-transform"
+            class="w-10 h-10 rounded-full bg-zinc-900/90 hover:bg-zinc-800 text-zinc-300 border border-zinc-700/80 text-xs font-mono flex items-center justify-center transition-colors cursor-pointer"
           >
             -10s
           </button>
@@ -1233,12 +1222,12 @@ export function VideoPlayer({ itemId, title, initialTicks = 0, onClose }: VideoP
                 else videoRef.current.pause();
               }
             }}
-            class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 flex items-center justify-center font-black shadow-xl shadow-emerald-500/30 transition-transform active:scale-95"
+            class="w-14 h-14 rounded-full bg-zinc-100 hover:bg-white text-zinc-950 flex items-center justify-center font-bold shadow-xl transition-transform active:scale-95 cursor-pointer"
           >
             {isPlaying ? (
-              <span class="text-lg sm:text-xl">❚❚</span>
+              <span class="text-base">❚❚</span>
             ) : (
-              <span class="text-xl sm:text-2xl ml-0.5">▶</span>
+              <span class="text-lg ml-0.5">▶</span>
             )}
           </button>
 
@@ -1249,7 +1238,7 @@ export function VideoPlayer({ itemId, title, initialTicks = 0, onClose }: VideoP
                 videoRef.current.currentTime = Math.min(videoRef.current.duration || 0, videoRef.current.currentTime + 10);
               }
             }}
-            class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-slate-800/70 hover:bg-slate-700 text-white flex items-center justify-center text-xs sm:text-sm font-bold backdrop-blur-md border border-slate-700/40 active:scale-90 transition-transform"
+            class="w-10 h-10 rounded-full bg-zinc-900/90 hover:bg-zinc-800 text-zinc-300 border border-zinc-700/80 text-xs font-mono flex items-center justify-center transition-colors cursor-pointer"
           >
             +10s
           </button>
@@ -1259,7 +1248,7 @@ export function VideoPlayer({ itemId, title, initialTicks = 0, onClose }: VideoP
         <div class="flex flex-col gap-2">
           {/* Progress track */}
           <div
-            class="relative w-full h-3 bg-slate-800/80 rounded-full overflow-hidden cursor-pointer backdrop-blur-sm border border-slate-700/40"
+            class="relative w-full h-1.5 hover:h-2 bg-zinc-800 rounded-full overflow-hidden cursor-pointer transition-all border border-zinc-700/40"
             onClick={(e) => {
               const rect = e.currentTarget.getBoundingClientRect();
               const ratio = (e.clientX - rect.left) / rect.width;
@@ -1270,50 +1259,29 @@ export function VideoPlayer({ itemId, title, initialTicks = 0, onClose }: VideoP
           >
             {/* Buffered */}
             <div
-              class="absolute left-0 top-0 bottom-0 bg-slate-600/60 rounded-full"
+              class="absolute left-0 top-0 bottom-0 bg-zinc-600/60 rounded-full"
               style={{ width: `${bufferedPercent}%` }}
             />
             {/* Played */}
             <div
-              class="absolute left-0 top-0 bottom-0 bg-emerald-500 rounded-full"
+              class="absolute left-0 top-0 bottom-0 bg-zinc-100 rounded-full"
               style={{ width: `${progressPercent}%` }}
             />
           </div>
 
-          <div class="flex items-center justify-between text-xs text-slate-400 font-mono">
+          <div class="flex items-center justify-between text-xs text-zinc-400 font-mono">
             <div class="flex items-center gap-2">
-              <span class="text-white font-bold">{formatTime(currentTime)}</span>
-              <span>/</span>
+              <span class="text-zinc-100 font-medium">{formatTime(currentTime)}</span>
+              <span class="text-zinc-600">/</span>
               <span>{formatTime(duration)}</span>
             </div>
 
             <div class="flex items-center gap-3">
-              <span class="text-emerald-400 font-sans font-semibold hidden md:inline">
+              <span class="text-zinc-400 font-mono text-[11px] hidden md:inline">
                 {selectedQuality === 'direct'
-                  ? `${(streamInfo?.video_codec || 'H.264').toUpperCase()} / AAC Direct Stream`
+                  ? `${(streamInfo?.video_codec || 'H.264').toUpperCase()} Direct Stream`
                   : `HLS ${selectedQuality} · ${(streamInfo?.video_codec || 'H.264').toUpperCase()}`}
               </span>
-              <button
-                data-nav="item"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  toggleFullscreen();
-                }}
-                class="px-3 py-1.5 bg-slate-800/80 hover:bg-slate-700 text-white rounded-xl border border-slate-700/50 backdrop-blur-sm transition-all hover:scale-105 active:scale-95 flex items-center gap-1.5"
-                title={isFullscreen ? 'Salir de pantalla completa' : 'Pantalla completa'}
-                aria-label={isFullscreen ? 'Salir de pantalla completa' : 'Pantalla completa'}
-              >
-                {isFullscreen ? (
-                  <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 4H5v4m0-4l5 5m6-5h4v4m0-4l-5 5M5 20h4v-4m-4 4l5-5m10 5l-5-5m5 5h-4v-4" />
-                  </svg>
-                ) : (
-                  <svg class="w-4 h-4 text-slate-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-5h-4m4 0v4m0-4l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-                  </svg>
-                )}
-                <span class="text-xs font-sans font-medium">{isFullscreen ? 'Ventana' : 'Pantalla completa'}</span>
-              </button>
             </div>
           </div>
         </div>

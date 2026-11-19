@@ -124,16 +124,16 @@ export function App() {
   }
 
   return (
-    <div class="min-h-full w-full max-w-full flex flex-col bg-[#090d16] text-slate-100 select-none overflow-x-hidden">
+    <div class="min-h-full w-full max-w-full flex flex-col bg-[#09090b] text-zinc-100 select-none overflow-x-hidden">
       {/* Global Low Storage Alert Banner */}
       {storageInfo && (storageInfo.is_critical || (storageInfo.is_low_space && !bannerDismissed)) && !playingMedia && (
-        <div class={`px-3 sm:px-[4vw] py-2.5 text-xs font-semibold flex items-center justify-between transition-colors z-50 w-full max-w-full ${
+        <div class={`px-4 sm:px-[4vw] py-2 text-xs font-mono flex items-center justify-between transition-colors z-50 w-full max-w-full border-b ${
           storageInfo.is_critical
-            ? 'bg-rose-600 text-white shadow-lg shadow-rose-950/40'
-            : 'bg-amber-500 text-slate-950 shadow-md'
+            ? 'bg-rose-950/90 text-rose-200 border-rose-800'
+            : 'bg-zinc-900 text-zinc-200 border-zinc-800'
         }`}>
           <div class="flex items-center gap-2">
-            <span class="text-base">{storageInfo.is_critical ? '🚨' : '⚠️'}</span>
+            <span>{storageInfo.is_critical ? '●' : '○'}</span>
             <span>{storageInfo.warning_message}</span>
           </div>
           <div class="flex items-center gap-3">
@@ -142,14 +142,14 @@ export function App() {
                 setSelectedMedia(null);
                 setCurrentView('home');
               }}
-              class="underline text-xs font-bold hover:opacity-80"
+              class="underline text-xs hover:text-white cursor-pointer"
             >
-              Gestionar películas
+              Gestionar títulos
             </button>
             {!storageInfo.is_critical && (
               <button
                 onClick={() => setBannerDismissed(true)}
-                class="opacity-70 hover:opacity-100 text-sm font-bold p-1"
+                class="text-zinc-400 hover:text-white text-xs p-0.5 cursor-pointer"
                 title="Descartar aviso temporalmente"
               >
                 ✕
