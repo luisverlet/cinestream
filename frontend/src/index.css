@@ -3,12 +3,16 @@
 @tailwind utilities;
 
 @layer base {
-  *, *::before, *::after {
+
+  *,
+  *::before,
+  *::after {
     -webkit-tap-highlight-color: transparent;
     box-sizing: border-box;
   }
-  
-  html, body {
+
+  html,
+  body {
     background-color: #0e141d;
     color: #e2e8f0;
     user-select: none;
@@ -32,13 +36,16 @@
     width: 6px;
     height: 6px;
   }
+
   ::-webkit-scrollbar-track {
     background: #0e141d;
   }
+
   ::-webkit-scrollbar-thumb {
     background: #232f3e;
     border-radius: 4px;
   }
+
   ::-webkit-scrollbar-thumb:hover {
     background: #34465b;
   }
@@ -61,8 +68,8 @@ input:focus-visible {
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
-

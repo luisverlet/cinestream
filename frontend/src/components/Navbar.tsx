@@ -150,7 +150,7 @@ export function Navbar({ currentView, onNavigate, onLogout, activeDownloads, sto
                   : storageInfo.is_low_space
                   ? 'flex bg-amber-950/60 text-amber-300 border-amber-700/60'
                   : 'hidden xl:flex bg-[#141d27] text-slate-400 border-[#243547]'
-              }`}
+                }`}
               title={`Almacenamiento: ${storageInfo.free_gb} GB libres de ${storageInfo.total_gb} GB (${storageInfo.used_percentage}% usado)`}
             >
               <span>{storageInfo.is_critical ? '⚠️' : storageInfo.is_low_space ? '⚠️' : '💾'}</span>
@@ -382,7 +382,7 @@ export function Navbar({ currentView, onNavigate, onLogout, activeDownloads, sto
                         : storageInfo.is_low_space
                         ? 'bg-amber-400'
                         : 'bg-cyan-400'
-                    }`}
+                      }`}
                     style={{ width: `${Math.min(100, Math.max(0, storageInfo.used_percentage))}%` }}
                   />
                 </div>

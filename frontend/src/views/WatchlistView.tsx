@@ -98,7 +98,7 @@ export function WatchlistView({ onSearchMovie }: WatchlistViewProps) {
     setFormNick(trimmed);
     try {
       localStorage.setItem(STORAGE_LAST_NICK_KEY, trimmed);
-    } catch {}
+    } catch { }
   };
 
   // Open multi-rating modal for a title
@@ -468,8 +468,8 @@ export function WatchlistView({ onSearchMovie }: WatchlistViewProps) {
             {searchQuery
               ? 'No se encontraron títulos con ese filtro'
               : activeTab === 'plan_to_watch'
-              ? 'No tienes títulos por ver en esta categoría'
-              : 'Aún no has marcado títulos como vistos'}
+                ? 'No tienes títulos por ver en esta categoría'
+                : 'Aún no has marcado títulos como vistos'}
           </h3>
           <p class="text-xs text-slate-400 max-w-sm">
             {activeTab === 'plan_to_watch'
@@ -557,8 +557,8 @@ export function WatchlistView({ onSearchMovie }: WatchlistViewProps) {
                           const badgeColor = isNano
                             ? 'bg-purple-950/60 border-purple-800/60 text-purple-300'
                             : isVane
-                            ? 'bg-pink-950/60 border-pink-800/60 text-pink-300'
-                            : 'bg-slate-950 border-slate-800 text-slate-300';
+                              ? 'bg-pink-950/60 border-pink-800/60 text-pink-300'
+                              : 'bg-slate-950 border-slate-800 text-slate-300';
 
                           return (
                             <div
@@ -611,11 +611,10 @@ export function WatchlistView({ onSearchMovie }: WatchlistViewProps) {
                   <button
                     data-nav="item"
                     onClick={() => handleOpenRatingModal(item, activeUser)}
-                    class={`flex-1 py-2 px-3 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-md ${
-                      isVaneActive
-                        ? 'bg-pink-600 hover:bg-pink-500 shadow-pink-950/30'
-                        : 'bg-purple-600 hover:bg-purple-500 shadow-purple-950/30'
-                    }`}
+                    class={`flex-1 py-2 px-3 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-md ${isVaneActive
+                      ? 'bg-pink-600 hover:bg-pink-500 shadow-pink-950/30'
+                      : 'bg-purple-600 hover:bg-purple-500 shadow-purple-950/30'
+                      }`}
                     title={`Calificar como ${myName}`}
                   >
                     <span>⭐</span>
@@ -731,11 +730,10 @@ export function WatchlistView({ onSearchMovie }: WatchlistViewProps) {
                   type="button"
                   data-nav="item"
                   onClick={() => handleSwitchRatingUser('Nano')}
-                  class={`py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer border ${
-                    ratingUser.toLowerCase() === 'nano'
-                      ? 'bg-purple-600 text-white border-purple-500 shadow-md shadow-purple-900/40'
-                      : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white'
-                  }`}
+                  class={`py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer border ${ratingUser.toLowerCase() === 'nano'
+                    ? 'bg-purple-600 text-white border-purple-500 shadow-md shadow-purple-900/40'
+                    : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white'
+                    }`}
                 >
                   <span>👤</span>
                   <span>Nano</span>
@@ -745,11 +743,10 @@ export function WatchlistView({ onSearchMovie }: WatchlistViewProps) {
                   type="button"
                   data-nav="item"
                   onClick={() => handleSwitchRatingUser('Vane')}
-                  class={`py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer border ${
-                    ratingUser.toLowerCase() === 'vane'
-                      ? 'bg-pink-600 text-white border-pink-500 shadow-md shadow-pink-900/40'
-                      : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white'
-                  }`}
+                  class={`py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer border ${ratingUser.toLowerCase() === 'vane'
+                    ? 'bg-pink-600 text-white border-pink-500 shadow-md shadow-pink-900/40'
+                    : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white'
+                    }`}
                 >
                   <span>👤</span>
                   <span>Vane</span>
@@ -810,11 +807,10 @@ export function WatchlistView({ onSearchMovie }: WatchlistViewProps) {
                         setSelectedRating(val);
                         setSelectedReaction(null);
                       }}
-                      class={`py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                        isSelected
-                          ? 'bg-amber-400 text-slate-950 font-black shadow-md shadow-amber-400/30'
-                          : 'bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800'
-                      }`}
+                      class={`py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${isSelected
+                        ? 'bg-amber-400 text-slate-950 font-black shadow-md shadow-amber-400/30'
+                        : 'bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800'
+                        }`}
                     >
                       ★ {val}
                     </button>
@@ -827,11 +823,10 @@ export function WatchlistView({ onSearchMovie }: WatchlistViewProps) {
                     setSelectedRating(6.0);
                     setSelectedReaction(null);
                   }}
-                  class={`py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                    selectedRating === 6.0 && !selectedReaction
-                      ? 'bg-amber-400 text-slate-950 font-black shadow-md shadow-amber-400/30'
-                      : 'bg-slate-900 hover:bg-slate-800 text-amber-400 border border-slate-800'
-                  }`}
+                  class={`py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${selectedRating === 6.0 && !selectedReaction
+                    ? 'bg-amber-400 text-slate-950 font-black shadow-md shadow-amber-400/30'
+                    : 'bg-slate-900 hover:bg-slate-800 text-amber-400 border border-slate-800'
+                    }`}
                   title="¡6 estrellas legendarias!"
                 >
                   ★ 6!
@@ -858,11 +853,10 @@ export function WatchlistView({ onSearchMovie }: WatchlistViewProps) {
                           setSelectedRating(0.0);
                         }
                       }}
-                      class={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer border ${
-                        isSelected
-                          ? 'bg-purple-600 text-white border-purple-400 shadow-sm'
-                          : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white'
-                      }`}
+                      class={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer border ${isSelected
+                        ? 'bg-purple-600 text-white border-purple-400 shadow-sm'
+                        : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white'
+                        }`}
                     >
                       {react.label}
                     </button>
@@ -1078,9 +1072,8 @@ export function WatchlistView({ onSearchMovie }: WatchlistViewProps) {
                         key={star}
                         data-nav="item"
                         onClick={() => setFormRating(star)}
-                        class={`text-2xl sm:text-3xl transition-transform hover:scale-125 cursor-pointer ${
-                          star <= formRating ? 'text-amber-400' : 'text-slate-700'
-                        }`}
+                        class={`text-2xl sm:text-3xl transition-transform hover:scale-125 cursor-pointer ${star <= formRating ? 'text-amber-400' : 'text-slate-700'
+                          }`}
                       >
                         ★
                       </button>

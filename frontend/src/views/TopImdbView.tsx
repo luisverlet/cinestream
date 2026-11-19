@@ -114,7 +114,7 @@ export function TopImdbView({ onSearchMovie }: TopImdbViewProps) {
       const trimmedNick = nick.trim() || 'Nano';
       try {
         localStorage.setItem(STORAGE_LAST_NICK_KEY, trimmedNick);
-      } catch {}
+      } catch { }
 
       const existingMatch = getWatchlistMatch(markingMovie);
       if (existingMatch) {
@@ -271,7 +271,7 @@ export function TopImdbView({ onSearchMovie }: TopImdbViewProps) {
                   : isPlanToWatch
                   ? 'border-purple-600/50 bg-[#1a1424]'
                   : 'border-[#243547] hover:border-[#384b61]'
-              }`}
+                }`}
             >
               {/* Header: Rank + Title + Ratings */}
               <div>
@@ -307,13 +307,12 @@ export function TopImdbView({ onSearchMovie }: TopImdbViewProps) {
                           match.ratings.map((r) => (
                             <span
                               key={r.user_nick}
-                              class={`text-[10px] px-2 py-0.5 rounded-md font-bold border flex items-center gap-1 ${
-                                r.user_nick.toLowerCase() === 'nano'
-                                  ? 'bg-purple-500/20 text-purple-300 border-purple-500/40'
-                                  : r.user_nick.toLowerCase() === 'vane'
+                              class={`text-[10px] px-2 py-0.5 rounded-md font-bold border flex items-center gap-1 ${r.user_nick.toLowerCase() === 'nano'
+                                ? 'bg-purple-500/20 text-purple-300 border-purple-500/40'
+                                : r.user_nick.toLowerCase() === 'vane'
                                   ? 'bg-pink-500/20 text-pink-300 border-pink-500/40'
                                   : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
-                              }`}
+                                }`}
                             >
                               <span>👤 {r.user_nick}:</span>
                               <span>{r.reaction || (r.rating ? `★ ${r.rating}` : '✓')}</span>
@@ -391,11 +390,10 @@ export function TopImdbView({ onSearchMovie }: TopImdbViewProps) {
                     setUserRating(match?.user_rating || 5);
                     setMarkingMovie(movie);
                   }}
-                  class={`py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-                    isWatched
-                      ? 'bg-purple-900/60 hover:bg-purple-800 text-purple-200 border border-purple-500/40'
-                      : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-md shadow-emerald-950/30'
-                  }`}
+                  class={`py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${isWatched
+                    ? 'bg-purple-900/60 hover:bg-purple-800 text-purple-200 border border-purple-500/40'
+                    : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-md shadow-emerald-950/30'
+                    }`}
                   title={isWatched ? 'Editar calificación de película vista' : 'Marcar película como vista y calificar'}
                 >
                   <span>✓</span>
@@ -493,11 +491,10 @@ export function TopImdbView({ onSearchMovie }: TopImdbViewProps) {
                     const r = m?.ratings?.find((x) => x.user_nick.toLowerCase() === 'nano');
                     if (r && r.rating) setUserRating(r.rating);
                   }}
-                  class={`py-1.5 px-3 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
-                    nick.toLowerCase() === 'nano'
-                      ? 'bg-purple-600 text-white border-purple-500 shadow-md shadow-purple-900/40'
-                      : 'bg-slate-950 text-slate-400 border-slate-800'
-                  }`}
+                  class={`py-1.5 px-3 rounded-xl text-xs font-bold transition-all border cursor-pointer ${nick.toLowerCase() === 'nano'
+                    ? 'bg-purple-600 text-white border-purple-500 shadow-md shadow-purple-900/40'
+                    : 'bg-slate-950 text-slate-400 border-slate-800'
+                    }`}
                 >
                   👤 Nano
                 </button>
@@ -510,11 +507,10 @@ export function TopImdbView({ onSearchMovie }: TopImdbViewProps) {
                     const r = m?.ratings?.find((x) => x.user_nick.toLowerCase() === 'vane');
                     if (r && r.rating) setUserRating(r.rating);
                   }}
-                  class={`py-1.5 px-3 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
-                    nick.toLowerCase() === 'vane'
-                      ? 'bg-pink-600 text-white border-pink-500 shadow-md shadow-pink-900/40'
-                      : 'bg-slate-950 text-slate-400 border-slate-800'
-                  }`}
+                  class={`py-1.5 px-3 rounded-xl text-xs font-bold transition-all border cursor-pointer ${nick.toLowerCase() === 'vane'
+                    ? 'bg-pink-600 text-white border-pink-500 shadow-md shadow-pink-900/40'
+                    : 'bg-slate-950 text-slate-400 border-slate-800'
+                    }`}
                 >
                   👤 Vane
                 </button>
@@ -540,9 +536,8 @@ export function TopImdbView({ onSearchMovie }: TopImdbViewProps) {
                     key={star}
                     data-nav="item"
                     onClick={() => setUserRating(star)}
-                    class={`text-3xl transition-transform hover:scale-125 cursor-pointer ${
-                      star <= userRating ? 'text-amber-400' : 'text-slate-700'
-                    }`}
+                    class={`text-3xl transition-transform hover:scale-125 cursor-pointer ${star <= userRating ? 'text-amber-400' : 'text-slate-700'
+                      }`}
                   >
                     ★
                   </button>

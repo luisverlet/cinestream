@@ -191,54 +191,54 @@ export function SearchCatalogView({ onSelectLocalMedia, onNavigateToDownloads, i
             )}
           </div>
         ) : (
-        <div class="space-y-10">
-          {/* Section 1: Local Library Results */}
-          <div>
-            <div class="flex items-center gap-2 mb-4">
-              <h3 class="text-lg font-bold text-white">En tu Servidor Local</h3>
-              <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-mono">
-                {localResults.length} encontrados
-              </span>
-            </div>
-
-            {localResults.length > 0 ? (
-              <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                {localResults.map((item) => (
-                  <MediaCard
-                    key={item.id}
-                    item={item}
-                    onSelect={onSelectLocalMedia}
-                  />
-                ))}
-              </div>
-            ) : (
-              <p class="text-xs text-slate-400 py-3 bg-slate-900/50 rounded-xl px-4 border border-slate-800">
-                No hay coincidencias en tu biblioteca local de Jellyfin. Consulta los resultados de torrents abajo para descargar.
-              </p>
-            )}
-          </div>
-
-          {/* Section 2: Torrents Results */}
-          <div>
-            <div class="flex items-center justify-between mb-4">
-              <div class="flex items-center gap-2">
-                <h3 class="text-lg font-bold text-white">Torrents Disponibles (Prowlarr)</h3>
-                <span class="text-xs px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 font-mono">
-                  {torrentResults.length} indexados
+          <div class="space-y-10">
+            {/* Section 1: Local Library Results */}
+            <div>
+              <div class="flex items-center gap-2 mb-4">
+                <h3 class="text-lg font-bold text-white">En tu Servidor Local</h3>
+                <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-mono">
+                  {localResults.length} encontrados
                 </span>
               </div>
-              <span class="text-xs text-slate-400 hidden sm:inline">
-                Descarga secuencial optimizada para reproducción rápida
-              </span>
+
+              {localResults.length > 0 ? (
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                  {localResults.map((item) => (
+                    <MediaCard
+                      key={item.id}
+                      item={item}
+                      onSelect={onSelectLocalMedia}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <p class="text-xs text-slate-400 py-3 bg-slate-900/50 rounded-xl px-4 border border-slate-800">
+                  No hay coincidencias en tu biblioteca local de Jellyfin. Consulta los resultados de torrents abajo para descargar.
+                </p>
+              )}
             </div>
 
-            <TorrentResults
-              results={torrentResults}
-              onDownloadStarted={handleDownloadStarted}
-              onDownloadError={handleDownloadError}
-            />
+            {/* Section 2: Torrents Results */}
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2">
+                  <h3 class="text-lg font-bold text-white">Torrents Disponibles (Prowlarr)</h3>
+                  <span class="text-xs px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 font-mono">
+                    {torrentResults.length} indexados
+                  </span>
+                </div>
+                <span class="text-xs text-slate-400 hidden sm:inline">
+                  Descarga secuencial optimizada para reproducción rápida
+                </span>
+              </div>
+
+              <TorrentResults
+                results={torrentResults}
+                onDownloadStarted={handleDownloadStarted}
+                onDownloadError={handleDownloadError}
+              />
+            </div>
           </div>
-        </div>
         )
       )}
 
