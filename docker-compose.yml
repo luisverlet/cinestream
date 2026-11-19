@@ -1,0 +1,172 @@
+services:
+  # ----------------------------------------------------------------------------
+  # JELLYFIN MEDIA SERVER
+  # ----------------------------------------------------------------------------
+  jellyfin:
+    image: jellyfin/jellyfin:latest
+    container_name: verlet-jellyfin
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Bogota
+      - JELLYFIN_PublishedServerUrl=http://jellyfin:8096
+    volumes:
+      - ./config/jellyfin:/config
+      - ./cache/jellyfin:/cache
+      - ${HOST_MEDIA_MOVIES:-./media/movies}:/media/movies
+      - ${HOST_MEDIA_TV:-./media/tv}:/media/tv
+    ports:
+      - "8096:8096"
+    # ==========================================================================
+    # ACELERACIÓN POR HARDWARE (INTEL QUICKSYNC QSV - INTEL 12th GEN i5-1235U / i5-12450H)
+    # ==========================================================================
+    # EN LINUX (Ubuntu / Debian / Arch):
+    # Descomenta 'devices' y 'group_add' para dar acceso al driver render/dri.
+    # Verifica en la terminal host: 'ls -l /dev/dri' y 'id -u' / 'id -g'
+    # devices:
+    #   - /dev/dri:/dev/dri
+    # group_add:
+    #   - "107" # GID del grupo 'render' en Linux (obtener con: getent group render | cut -d: -f3)
+
+    # EN WINDOWS CON DOCKER DESKTOP (WSL2):
+    # Si Docker Desktop corre sobre WSL2 con driver Intel para Windows actualizado,
+    # /dev/dri se monta automáticamente en el subsistema WSL2. Si tu instalación
+    # de Windows genera error 'device not found', comenta la sección 'devices:'
+    # arriba hasta configurar el backend WSL2.
+    networks:
+      - verlet-network
+
+  # ----------------------------------------------------------------------------
+  # PROWLARR - Indexador de Torrents
+  # ----------------------------------------------------------------------------
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    container_name: verlet-prowlarr
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Bogota
+    volumes:
+      - ./config/prowlarr:/config
+    ports:
+      - "9696:9696"
+    networks:
+      - verlet-network
+
+  # ----------------------------------------------------------------------------
+  # QBITTORRENT - Cliente de Descargas Secuenciales
+  # ----------------------------------------------------------------------------
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: verlet-qbittorrent
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Bogota
+      - WEBUI_PORT=8080
+      - TORRENTING_PORT=6881
+    volumes:
+      - ./config/qbittorrent:/config
+      - ${HOST_MEDIA_DOWNLOADS:-./media/downloads}:/media/downloads
+      - ${HOST_MEDIA_MOVIES:-./media/movies}:/media/movies
+      - ${HOST_MEDIA_TV:-./media/tv}:/media/tv
+    ports:
+      - "8080:8080"
+      - "6881:6881"
+      - "6881:6881/udp"
+    networks:
+      - verlet-network
+
+  # ----------------------------------------------------------------------------
+  # BAZARR - Gestor y Descargador Automático de Subtítulos
+  # ----------------------------------------------------------------------------
+  bazarr:
+    image: lscr.io/linuxserver/bazarr:latest
+    container_name: verlet-bazarr
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Bogota
+    volumes:
+      - ./config/bazarr:/config
+      - ${HOST_MEDIA_MOVIES:-./media/movies}:/media/movies
+      - ${HOST_MEDIA_TV:-./media/tv}:/media/tv
+    ports:
+      - "6767:6767"
+    networks:
+      - verlet-network
+
+  # ----------------------------------------------------------------------------
+  # BACKEND BRIDGE (API GATEWAY FASTAPI)
+  # ----------------------------------------------------------------------------
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: verlet-backend-bridge
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - JELLYFIN_URL=http://jellyfin:8096/jellyfin
+      - PROWLARR_URL=http://prowlarr:9696
+      - QBITTORRENT_URL=http://qbittorrent:8080
+      - BAZARR_URL=http://bazarr:6767
+      - QBITTORRENT_MOVIES_PATH=/media/movies
+      - QBITTORRENT_TV_PATH=/media/tv
+    volumes:
+      - ${HOST_MEDIA_MOVIES:-./media/movies}:/media/movies
+      - ${HOST_MEDIA_DOWNLOADS:-./media/downloads}:/media/downloads
+      - ${HOST_MEDIA_TV:-./media/tv}:/media/tv
+    ports:
+      - "8000:8000"
+    depends_on:
+      - jellyfin
+      - prowlarr
+      - qbittorrent
+      - bazarr
+    networks:
+      - verlet-network
+
+  # ----------------------------------------------------------------------------
+  # FRONTEND WEB SPA (Preact + Vite + Nginx)
+  # Puerto 80 interno, expuesto en el puerto de respaldo local 8088
+  # ----------------------------------------------------------------------------
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: verlet-frontend-web
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-8088}:80"
+    depends_on:
+      - backend
+    networks:
+      - verlet-network
+
+  # ----------------------------------------------------------------------------
+  # CLOUDFLARE TUNNEL (Acceso Global Seguro con Dominio Personalizado)
+  # Sin necesidad de abrir puertos en el router o exponer IPs residenciales
+  # ----------------------------------------------------------------------------
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: verlet-cloudflared
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN}
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - verlet-network
+
+networks:
+  verlet-network:
+    name: verlet-network
+    driver: bridge

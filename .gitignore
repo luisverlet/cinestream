@@ -1,0 +1,58 @@
+# Node / Frontend
+node_modules/
+dist/
+.vite/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Python / Backend
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.env
+.env.local
+.venv/
+venv/
+ENV/
+build/
+develop-eggs/
+dist/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Media folders (host local media should not be committed)
+media/movies/*
+!media/movies/.gitkeep
+media/tv/*
+!media/tv/.gitkeep
+media/downloads/*
+!media/downloads/.gitkeep
+
+# Local watchlists & media data
+*.watchlist.json
+.cineluisverlet_watchlist.json
+.watchlist.json
+*.docx
+
+# Container persistent configs & cache
+config/
+cache/
+
+# IDE & OS
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
