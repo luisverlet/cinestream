@@ -23,29 +23,29 @@ export function MediaRow({ title, items, onSelect, aspect = 'poster' }: MediaRow
 
   return (
     <section class="py-3 sm:py-4 select-none">
-      <div class="px-4 sm:px-[4vw] flex items-center justify-between mb-2.5 sm:mb-3">
-        <h3 class="text-sm sm:text-base font-semibold text-zinc-100 tracking-tight flex items-center gap-2">
+      <div class="px-3 sm:px-[4vw] flex items-center justify-between mb-2.5 sm:mb-3">
+        <h3 class="text-base sm:text-lg md:text-xl font-bold text-white tracking-tight flex items-center gap-2">
           <span>{title}</span>
-          <span class="text-[11px] px-1.5 py-0.2 rounded font-mono font-normal bg-zinc-900 text-zinc-400 border border-zinc-800">
+          <span class="text-xs px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 font-mono font-normal">
             {items.length}
           </span>
         </h3>
 
         {/* Carousel buttons for desktop mouse/remote users */}
-        <div class="hidden md:flex items-center gap-1">
+        <div class="hidden md:flex items-center gap-1.5">
           <button
             data-nav-ignore="true"
             onClick={() => scroll('left')}
-            class="p-1 rounded bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 border border-zinc-800 transition-colors cursor-pointer text-xs"
-            title="Anterior"
+            class="p-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 transition-colors"
+            title="Desplazar a la izquierda"
           >
             ←
           </button>
           <button
             data-nav-ignore="true"
             onClick={() => scroll('right')}
-            class="p-1 rounded bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 border border-zinc-800 transition-colors cursor-pointer text-xs"
-            title="Siguiente"
+            class="p-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 transition-colors"
+            title="Desplazar a la derecha"
           >
             →
           </button>
@@ -53,13 +53,13 @@ export function MediaRow({ title, items, onSelect, aspect = 'poster' }: MediaRow
       </div>
 
       {/* 
-        Responsive Layout:
-        - Mobile (< md): 2 columns vertical grid, centered, scrolling down
+        Responsive Catalog Layout:
+        - Mobile (< md): 2 columns vertical grid, centered, scrolling down ("de dos en dos, centradas, hacia abajo")
         - Desktop / Smart TV (>= md): Horizontal smooth-scroll carousel
       */}
       <div
         ref={scrollContainerRef}
-        class="grid grid-cols-2 gap-2.5 sm:gap-3 px-4 sm:px-[4vw] max-w-xl sm:max-w-2xl mx-auto md:max-w-none md:flex md:flex-row md:overflow-x-auto md:pb-2 md:no-scrollbar md:scroll-smooth"
+        class="grid grid-cols-2 gap-3 sm:gap-4 px-3 sm:px-[4vw] max-w-xl sm:max-w-2xl mx-auto md:max-w-none md:flex md:flex-row md:overflow-x-auto md:pb-3 md:no-scrollbar md:scroll-smooth"
       >
         {items.map((item) => (
           <MediaCard
@@ -73,3 +73,4 @@ export function MediaRow({ title, items, onSelect, aspect = 'poster' }: MediaRow
     </section>
   );
 }
+

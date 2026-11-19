@@ -62,64 +62,63 @@ export function MediaDetailModal({ item, onClose, onPlay, onReplaceMedia, onMedi
       onClick={onClose}
     >
       <div
-        class="relative bg-[#09090b] border border-zinc-800 rounded-lg max-w-3xl w-full overflow-hidden shadow-2xl my-auto"
+        class="relative bg-[#131b26] border border-[#2a3c50] rounded-md max-w-4xl w-full overflow-hidden shadow-2xl my-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Backdrop Banner */}
-        <div class="relative h-36 sm:h-52 w-full overflow-hidden bg-zinc-950 border-b border-zinc-800">
+        <div class="relative h-40 sm:h-64 w-full overflow-hidden bg-[#0e141d]">
           {backdrop && (
             <img
               src={backdrop}
               alt={item.name}
-              class="w-full h-full object-cover filter brightness-[0.45]"
+              class="w-full h-full object-cover filter brightness-[0.55]"
             />
           )}
-          <div class="absolute inset-0 bg-gradient-to-t from-[#09090b] via-[#09090b]/40 to-transparent" />
+          <div class="absolute inset-0 bg-gradient-to-t from-[#131b26] via-transparent to-transparent" />
 
           {/* Close button */}
           <button
             data-nav="item"
             onClick={onClose}
-            class="absolute top-3 right-3 w-7 h-7 rounded-md bg-zinc-900/90 hover:bg-zinc-800 text-zinc-300 hover:text-white flex items-center justify-center border border-zinc-700/80 transition-colors text-xs cursor-pointer"
-            title="Cerrar"
+            class="absolute top-3 right-3 sm:top-4 sm:right-4 w-7 h-7 sm:w-8 sm:h-8 rounded bg-[#1a2533] hover:bg-[#253549] text-white flex items-center justify-center border border-[#2d3e52] transition-colors text-xs"
           >
             ✕
           </button>
         </div>
 
         {/* Content Body */}
-        <div class="p-4 sm:p-6 -mt-8 sm:-mt-12 relative z-10">
+        <div class="p-4 sm:p-6 -mt-10 sm:-mt-16 relative z-10">
           <div class="flex flex-col sm:flex-row gap-5 items-start">
             {/* Poster Thumbnail */}
             {item.image_url && (
               <img
                 src={item.image_url}
                 alt={item.name}
-                class="w-24 sm:w-32 rounded-md shadow-md border border-zinc-700 flex-none object-cover aspect-[2/3] hidden sm:block bg-zinc-900"
+                class="w-28 sm:w-36 rounded border border-[#2a3c50] shadow-xl flex-none object-cover aspect-[2/3] hidden sm:block"
               />
             )}
 
             {/* Title & Metadata */}
-            <div class="flex-1 min-w-0">
+            <div class="flex-1">
               <div class="flex flex-wrap items-center gap-2 mb-2">
-                <span class="px-2 py-0.5 rounded text-[10px] font-mono font-medium uppercase tracking-wider bg-zinc-900 text-zinc-300 border border-zinc-800">
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-[#1a2b3c] text-cyan-300 border border-cyan-700/60 font-mono">
                   {item.type === 'Movie' ? 'Película' : 'Serie'}
                 </span>
-                {item.year && <span class="text-xs text-zinc-400 font-mono">{item.year}</span>}
+                {item.year && <span class="text-xs text-slate-300 font-semibold">{item.year}</span>}
                 {item.community_rating && (
-                  <span class="text-xs text-amber-400 font-medium">★ {item.community_rating.toFixed(1)}</span>
+                  <span class="text-xs text-amber-400 font-bold">★ {item.community_rating.toFixed(1)}</span>
                 )}
                 {item.runtime_minutes && (
-                  <span class="text-xs text-zinc-400 font-mono">{item.runtime_minutes} min</span>
+                  <span class="text-xs text-slate-400">{item.runtime_minutes} min</span>
                 )}
                 {detail?.video_codec && (
-                  <span class="text-xs text-zinc-400 font-mono uppercase bg-zinc-900 border border-zinc-800 px-1.5 py-0.2 rounded">
+                  <span class="text-xs text-slate-400 font-mono uppercase bg-[#1a2533] px-2 py-0.5 rounded border border-[#243547]">
                     {detail.video_codec}
                   </span>
                 )}
               </div>
 
-              <h2 class="text-xl sm:text-2xl font-semibold text-zinc-100 tracking-tight">
+              <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight">
                 {item.name}
               </h2>
 
@@ -127,7 +126,7 @@ export function MediaDetailModal({ item, onClose, onPlay, onReplaceMedia, onMedi
               {item.genres && item.genres.length > 0 && (
                 <div class="flex flex-wrap gap-1.5 mt-2">
                   {item.genres.map((g) => (
-                    <span key={g} class="text-[11px] px-2 py-0.5 bg-zinc-900 text-zinc-300 border border-zinc-800/80 rounded font-normal">
+                    <span key={g} class="text-[11px] px-2 py-0.5 bg-[#1a2533] text-slate-300 rounded border border-[#243547]">
                       {g}
                     </span>
                   ))}
@@ -135,11 +134,11 @@ export function MediaDetailModal({ item, onClose, onPlay, onReplaceMedia, onMedi
               )}
 
               {/* Overview */}
-              <p class="mt-3 text-xs sm:text-sm text-zinc-300 leading-relaxed max-w-xl font-normal">
+              <p class="mt-3.5 text-xs sm:text-sm text-slate-300 leading-relaxed max-w-2xl">
                 {item.overview || 'Sin descripción disponible.'}
               </p>
 
-              {/* Action Buttons */}
+              {/* Action Buttons: Play, Replace / Search another version, Delete */}
               <div class="mt-5 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-2.5">
                 {item.type !== 'Series' && (
                   <button
@@ -149,9 +148,9 @@ export function MediaDetailModal({ item, onClose, onPlay, onReplaceMedia, onMedi
                       onClose();
                       onPlay(item, detail?.playback_position_ticks);
                     }}
-                    class="w-full sm:w-auto px-4 py-2 bg-zinc-100 hover:bg-white text-zinc-950 font-medium rounded-md text-xs sm:text-sm transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-sm"
+                    class="w-full sm:w-auto px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded text-xs sm:text-sm transition-colors flex items-center justify-center gap-2 border border-emerald-500"
                   >
-                    <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+                    <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
                       <polygon points="5 3 19 12 5 21 5 3" />
                     </svg>
                     <span>
@@ -171,12 +170,10 @@ export function MediaDetailModal({ item, onClose, onPlay, onReplaceMedia, onMedi
                       onReplaceMedia(item.name);
                     }
                   }}
-                  class="w-full sm:w-auto px-3.5 py-2 bg-zinc-900 hover:bg-zinc-800 text-zinc-200 font-medium rounded-md text-xs sm:text-sm transition-colors flex items-center justify-center gap-1.5 border border-zinc-700/80 cursor-pointer"
-                  title="Buscar otra calidad o versión en la red"
+                  class="w-full sm:w-auto px-4 py-2.5 bg-[#1a2533] hover:bg-[#233347] text-slate-200 font-semibold rounded text-xs sm:text-sm transition-colors flex items-center justify-center gap-1.5 border border-[#2d3e52]"
+                  title="Buscar otra calidad (1080p, 4K) o versión con otro audio/idioma"
                 >
-                  <svg class="w-3.5 h-3.5 text-zinc-400" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                  </svg>
+                  <span>🔄</span>
                   <span>Buscar otra versión</span>
                 </button>
 
@@ -184,12 +181,10 @@ export function MediaDetailModal({ item, onClose, onPlay, onReplaceMedia, onMedi
                 <button
                   data-nav="item"
                   onClick={() => setConfirmDelete(true)}
-                  class="w-full sm:w-auto px-3.5 py-2 bg-zinc-900 hover:bg-rose-950/40 text-zinc-400 hover:text-rose-400 border border-zinc-800 hover:border-rose-900/60 font-medium rounded-md text-xs sm:text-sm transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
-                  title="Eliminar del servidor para liberar espacio"
+                  class="w-full sm:w-auto px-3.5 py-2.5 bg-[#1b1419] hover:bg-[#2a1720] text-rose-300 hover:text-rose-200 border border-rose-900/60 font-semibold rounded text-xs sm:text-sm transition-colors flex items-center justify-center gap-1.5"
+                  title="Eliminar película del servidor para liberar espacio en disco"
                 >
-                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                  </svg>
+                  <span>🗑️</span>
                   <span>Eliminar</span>
                 </button>
               </div>
@@ -198,20 +193,20 @@ export function MediaDetailModal({ item, onClose, onPlay, onReplaceMedia, onMedi
 
           {/* Series Episodes List */}
           {item.type === 'Series' && (
-            <div class="mt-6 border-t border-zinc-800 pt-5">
-              <h3 class="text-sm font-semibold text-zinc-100 mb-3 flex items-center justify-between">
-                <span>Episodios disponibles</span>
-                <span class="text-xs font-mono text-zinc-400">{episodes.length}</span>
+            <div class="mt-8 border-t border-slate-800/80 pt-6">
+              <h3 class="text-base font-bold text-white mb-4 flex items-center justify-between">
+                <span>Episodios Disponibles</span>
+                <span class="text-xs text-slate-400 font-normal">{episodes.length} episodios</span>
               </h3>
 
               {loading ? (
-                <div class="py-6 text-center text-zinc-400 text-xs font-mono">
-                  Cargando episodios...
+                <div class="py-8 flex justify-center text-slate-400 text-sm">
+                  <span class="animate-spin mr-2">⟳</span> Cargando episodios...
                 </div>
               ) : episodes.length === 0 ? (
-                <p class="text-xs text-zinc-400 py-3">No se encontraron episodios en esta serie.</p>
+                <p class="text-xs text-slate-400 py-4">No se encontraron episodios en esta serie.</p>
               ) : (
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-64 overflow-y-auto pr-1">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-72 overflow-y-auto pr-1">
                   {episodes.map((ep) => (
                     <div
                       key={ep.id}
@@ -228,16 +223,16 @@ export function MediaDetailModal({ item, onClose, onPlay, onReplaceMedia, onMedi
                           playback_position_ticks: ep.playback_position_ticks
                         }, ep.playback_position_ticks);
                       }}
-                      class="flex items-center gap-2.5 p-2.5 rounded-md bg-zinc-950 hover:bg-zinc-900 border border-zinc-800/80 hover:border-zinc-700 cursor-pointer transition-colors"
+                      class="flex items-center gap-3 p-3 rounded-xl bg-slate-800/60 hover:bg-slate-700/80 border border-slate-700/40 cursor-pointer transition-all hover:scale-[1.02] focus:ring-2 focus:ring-emerald-400"
                     >
-                      <div class="w-6 h-6 rounded bg-zinc-800 text-zinc-200 flex items-center justify-center font-bold text-[10px] flex-none">
+                      <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs flex-none">
                         ▶
                       </div>
                       <div class="flex-1 min-w-0">
-                        <h4 class="text-xs font-medium text-zinc-200 truncate">{ep.name}</h4>
-                        <div class="flex items-center gap-2 text-[10px] font-mono text-zinc-400 mt-0.5">
-                          {ep.runtime_minutes && <span>{ep.runtime_minutes}m</span>}
-                          {ep.played && <span class="text-zinc-300">✓ Visto</span>}
+                        <h4 class="text-xs font-semibold text-white truncate">{ep.name}</h4>
+                        <div class="flex items-center gap-2 text-[10px] text-slate-400 mt-0.5">
+                          {ep.runtime_minutes && <span>{ep.runtime_minutes} min</span>}
+                          {ep.played && <span class="text-emerald-400">✓ Visto</span>}
                         </div>
                       </div>
                     </div>
@@ -255,19 +250,22 @@ export function MediaDetailModal({ item, onClose, onPlay, onReplaceMedia, onMedi
             onClick={(e) => { e.stopPropagation(); if (!isDeleting) setConfirmDelete(false); }}
           >
             <div
-              class="bg-zinc-950 border border-zinc-800 rounded-lg p-5 max-w-sm w-full shadow-2xl space-y-3"
+              class="bg-[#171217] border border-rose-900/80 rounded-md p-5 max-w-md w-full shadow-2xl space-y-3.5"
               onClick={(e) => e.stopPropagation()}
             >
-              <h3 class="text-sm font-semibold text-zinc-100">¿Eliminar "{item.name}"?</h3>
-              <p class="text-xs text-zinc-400 leading-relaxed">
-                Esta acción borrará el archivo de video físicamente del disco del servidor para liberar espacio.
+              <div class="flex items-center gap-2.5 text-rose-400">
+                <span class="text-xl">⚠️</span>
+                <h3 class="text-sm sm:text-base font-bold text-white">¿Eliminar "{item.name}"?</h3>
+              </div>
+              <p class="text-xs text-slate-300 leading-relaxed">
+                Esta acción desindexará la película de Jellyfin y borrará físicamente el archivo del disco para <strong>liberar espacio de almacenamiento</strong>.
               </p>
-              <div class="flex items-center justify-end gap-2 pt-3 border-t border-zinc-800">
+              <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-[#2d1c24]">
                 <button
                   data-nav="item"
                   disabled={isDeleting}
                   onClick={() => setConfirmDelete(false)}
-                  class="px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 text-xs font-medium rounded-md border border-zinc-800 transition-colors cursor-pointer"
+                  class="px-3.5 py-1.5 bg-[#251820] hover:bg-[#341d2a] text-slate-300 text-xs font-semibold rounded border border-rose-900/50"
                 >
                   Cancelar
                 </button>
@@ -275,9 +273,16 @@ export function MediaDetailModal({ item, onClose, onPlay, onReplaceMedia, onMedi
                   data-nav="item"
                   disabled={isDeleting}
                   onClick={handleDelete}
-                  class="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-500 disabled:opacity-50 text-white text-xs font-medium rounded-md transition-colors cursor-pointer"
+                  class="px-4 py-1.5 bg-rose-600 hover:bg-rose-500 disabled:opacity-50 text-white text-xs font-bold rounded flex items-center gap-2"
                 >
-                  {isDeleting ? 'Eliminando...' : 'Eliminar archivo'}
+                  {isDeleting ? (
+                    <>
+                      <span class="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                      <span>Eliminando...</span>
+                    </>
+                  ) : (
+                    <span>Sí, eliminar archivo</span>
+                  )}
                 </button>
               </div>
             </div>
@@ -287,3 +292,4 @@ export function MediaDetailModal({ item, onClose, onPlay, onReplaceMedia, onMedi
     </div>
   );
 }
+

@@ -29,6 +29,7 @@ export function SearchCatalogView({ onSelectLocalMedia, onNavigateToDownloads, i
     setHasSearched(true);
 
     try {
+      // Parallel search: Local Jellyfin media + Prowlarr torrents
       const [localRes, torrentRes] = await Promise.allSettled([
         api.searchLocal(cleanQuery),
         api.searchTorrents(cleanQuery)
@@ -67,7 +68,7 @@ export function SearchCatalogView({ onSelectLocalMedia, onNavigateToDownloads, i
   };
 
   const handleDownloadStarted = (torrentTitle: string) => {
-    setToastMessage(`Descarga iniciada: ${torrentTitle.slice(0, 32)}...`);
+    setToastMessage(`Descarga iniciada: ${torrentTitle.slice(0, 30)}...`);
     setTimeout(() => setToastMessage(null), 4000);
   };
 
@@ -77,15 +78,15 @@ export function SearchCatalogView({ onSelectLocalMedia, onNavigateToDownloads, i
   };
 
   return (
-    <div class="px-4 sm:px-[4vw] py-6 max-w-5xl mx-auto select-none">
+    <div class="px-[4vw] py-6 max-w-6xl mx-auto select-none">
       {/* Toast Success */}
       {toastMessage && (
-        <div class="fixed top-14 right-5 z-50 bg-zinc-900 border border-zinc-700 text-zinc-100 text-xs px-3.5 py-2 rounded-md shadow-xl flex items-center gap-2.5 font-mono">
-          <span class="text-emerald-400">✓</span>
-          <span>{toastMessage}</span>
+        <div class="fixed top-16 right-6 z-50 bg-emerald-600 text-slate-950 font-bold px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 border border-emerald-400">
+          <span>✓</span>
+          <span class="text-xs">{toastMessage}</span>
           <button
             onClick={onNavigateToDownloads}
-            class="ml-2 underline text-zinc-300 hover:text-white cursor-pointer"
+            class="ml-2 text-xs underline font-black text-slate-950 hover:text-white"
           >
             Ver descargas
           </button>
@@ -94,13 +95,13 @@ export function SearchCatalogView({ onSelectLocalMedia, onNavigateToDownloads, i
 
       {/* Toast Error */}
       {errorMessage && (
-        <div class="fixed top-14 right-5 z-50 bg-zinc-950 border border-rose-800 text-rose-300 text-xs px-3.5 py-2 rounded-md shadow-xl flex items-center gap-2 font-mono">
+        <div class="fixed top-16 right-6 z-50 bg-rose-600 text-white font-bold px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 border border-rose-400">
           <span>✕</span>
-          <span>{errorMessage}</span>
+          <span class="text-xs">{errorMessage}</span>
         </div>
       )}
 
-      {/* Search Input Bar */}
+      {/* Search Bar Form */}
       <form onSubmit={handleSearch} class="relative w-full mb-6">
         <div class="relative flex items-center">
           <input
@@ -110,25 +111,24 @@ export function SearchCatalogView({ onSelectLocalMedia, onNavigateToDownloads, i
             type="text"
             value={query}
             onInput={(e) => setQuery((e.target as HTMLInputElement).value)}
-            placeholder="Buscar por título en biblioteca y en la red..."
-            class="w-full pl-10 pr-24 py-2.5 bg-zinc-950 border border-zinc-800 rounded-md text-zinc-100 placeholder-zinc-500 text-xs sm:text-sm outline-none focus:border-zinc-500 transition-colors font-mono"
+            placeholder="Buscar películas o series en tu servidor o en Torrents..."
+            class="w-full pl-10 pr-24 py-2.5 bg-[#141d27] border border-[#243547] rounded text-white placeholder-slate-500 text-sm outline-none focus:border-[#66c0f4] transition-colors"
           />
 
           <svg
-            class="w-4 h-4 text-zinc-500 absolute left-3.5 pointer-events-none"
+            class="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none"
             fill="none"
             stroke="currentColor"
-            stroke-width="1.75"
             viewBox="0 0 24 24"
           >
-            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
 
           <button
             data-nav="item"
             type="submit"
             disabled={isSearching || !query.trim()}
-            class="absolute right-1.5 px-3 py-1 bg-zinc-100 hover:bg-white disabled:opacity-40 text-zinc-950 font-medium rounded text-xs transition-colors cursor-pointer shadow-sm"
+            class="absolute right-1.5 px-3.5 py-1.5 bg-[#1b2838] hover:bg-[#223347] disabled:opacity-50 text-cyan-300 border border-[#384b61] font-bold rounded text-xs transition-colors"
           >
             {isSearching ? 'Buscando...' : 'Buscar'}
           </button>
@@ -137,78 +137,123 @@ export function SearchCatalogView({ onSelectLocalMedia, onNavigateToDownloads, i
 
       {/* Loading state */}
       {isSearching && (
-        <div class="py-16 text-center text-zinc-500 text-xs font-mono">
-          Consultando servidor local e indexadores...
+        <div class="py-16 text-center text-slate-400">
+          <div class="w-10 h-10 border-3 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+          <p class="text-sm font-medium">Buscando en tu biblioteca local y en la red de indexadores...</p>
         </div>
       )}
 
       {!isSearching && hasSearched && (
         localResults.length === 0 && torrentResults.length === 0 ? (
-          <div class="p-6 bg-zinc-950 border border-zinc-800 rounded-md text-center max-w-lg mx-auto my-6 space-y-3">
-            <h4 class="text-sm font-semibold text-zinc-200">
-              Sin coincidencias para "{query}"
-            </h4>
-            <p class="text-xs text-zinc-400 leading-relaxed">
-              No se encontraron archivos en tu biblioteca ni torrents activos. Prueba buscando con el título original en inglés (ej: <em>"Inception"</em>, <em>"The Dark Knight"</em>) o simplificando a una palabra clave.
-            </p>
+          <div class="p-6 bg-slate-900/90 border border-amber-500/40 rounded-2xl shadow-xl space-y-4 text-center max-w-2xl mx-auto my-6 animate-scale-up">
+            <div class="w-12 h-12 rounded-full bg-amber-500/10 text-amber-400 flex items-center justify-center mx-auto text-xl">
+              🔍
+            </div>
+            <div>
+              <h4 class="text-base sm:text-lg font-bold text-white">
+                No encontramos resultados para "{query}"
+              </h4>
+              <p class="text-xs text-slate-400 mt-1">
+                No hay coincidencias en tu biblioteca local ni en los indexadores de torrents.
+              </p>
+            </div>
+
+            <div class="bg-slate-800/60 rounded-xl p-4 text-left border border-slate-700/50 space-y-2">
+              <p class="text-xs font-semibold text-emerald-400 flex items-center gap-1.5">
+                <span>💡</span> Consejos para encontrar tu película:
+              </p>
+              <ul class="text-xs text-slate-300 space-y-1.5 list-disc list-inside">
+                <li>
+                  <strong>Prueba con el título original en inglés:</strong> Los torrents están catalogados mayormente en su título original (ej: busca <em>"Spider-Man"</em>, <em>"The Dark Knight"</em> o <em>"Dune"</em>).
+                </li>
+                <li>
+                  <strong>Simplifica el término:</strong> Usa una o dos palabras clave principales (ej: <em>"Batman"</em> en vez de <em>"Batman La Película Completa"</em>).
+                </li>
+                <li>
+                  <strong>Quita tildes, símbolos o subtítulos:</strong> Prueba palabras simples sin caracteres especiales.
+                </li>
+              </ul>
+            </div>
+
+            {/* Quick Retry Action if query has multiple words */}
+            {query.trim().split(' ').length > 1 && (
+              <button
+                data-nav="item"
+                onClick={() => {
+                  const simplified = query.trim().split(' ')[0];
+                  setQuery(simplified);
+                  executeSearch(simplified);
+                }}
+                class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-950/40 transition-all hover:scale-105 active:scale-95"
+              >
+                Probar buscando solo "{query.trim().split(' ')[0]}"
+              </button>
+            )}
           </div>
         ) : (
-          <div class="space-y-8">
-            {/* Section 1: Local Library Results */}
-            <div>
-              <div class="flex items-center gap-2 mb-3">
-                <h3 class="text-sm font-semibold text-zinc-100">En tu servidor</h3>
-                <span class="text-[11px] font-mono px-1.5 py-0.2 rounded bg-zinc-900 border border-zinc-800 text-zinc-400">
-                  {localResults.length}
+        <div class="space-y-10">
+          {/* Section 1: Local Library Results */}
+          <div>
+            <div class="flex items-center gap-2 mb-4">
+              <h3 class="text-lg font-bold text-white">En tu Servidor Local</h3>
+              <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-mono">
+                {localResults.length} encontrados
+              </span>
+            </div>
+
+            {localResults.length > 0 ? (
+              <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                {localResults.map((item) => (
+                  <MediaCard
+                    key={item.id}
+                    item={item}
+                    onSelect={onSelectLocalMedia}
+                  />
+                ))}
+              </div>
+            ) : (
+              <p class="text-xs text-slate-400 py-3 bg-slate-900/50 rounded-xl px-4 border border-slate-800">
+                No hay coincidencias en tu biblioteca local de Jellyfin. Consulta los resultados de torrents abajo para descargar.
+              </p>
+            )}
+          </div>
+
+          {/* Section 2: Torrents Results */}
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center gap-2">
+                <h3 class="text-lg font-bold text-white">Torrents Disponibles (Prowlarr)</h3>
+                <span class="text-xs px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 font-mono">
+                  {torrentResults.length} indexados
                 </span>
               </div>
-
-              {localResults.length > 0 ? (
-                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-                  {localResults.map((item) => (
-                    <MediaCard
-                      key={item.id}
-                      item={item}
-                      onSelect={onSelectLocalMedia}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <p class="text-xs text-zinc-500 py-2.5 px-3 rounded bg-zinc-950 border border-zinc-800 font-mono">
-                  No hay copias descargadas en este momento. Consulta las opciones de descarga abajo.
-                </p>
-              )}
+              <span class="text-xs text-slate-400 hidden sm:inline">
+                Descarga secuencial optimizada para reproducción rápida
+              </span>
             </div>
 
-            {/* Section 2: Torrents Results */}
-            <div>
-              <div class="flex items-center justify-between mb-3">
-                <div class="flex items-center gap-2">
-                  <h3 class="text-sm font-semibold text-zinc-100">Fuentes disponibles</h3>
-                  <span class="text-[11px] font-mono px-1.5 py-0.2 rounded bg-zinc-900 border border-zinc-800 text-zinc-400">
-                    {torrentResults.length}
-                  </span>
-                </div>
-              </div>
-
-              <TorrentResults
-                results={torrentResults}
-                onDownloadStarted={handleDownloadStarted}
-                onDownloadError={handleDownloadError}
-              />
-            </div>
+            <TorrentResults
+              results={torrentResults}
+              onDownloadStarted={handleDownloadStarted}
+              onDownloadError={handleDownloadError}
+            />
           </div>
+        </div>
         )
       )}
 
       {!hasSearched && (
-        <div class="py-16 text-center text-zinc-500 space-y-1">
-          <p class="text-sm font-medium text-zinc-300">Búsqueda de títulos</p>
-          <p class="text-xs text-zinc-500 max-w-sm mx-auto">
-            Ingresa un nombre para buscar simultáneamente en tus archivos locales y en la red.
+        <div class="py-16 text-center text-slate-500">
+          <svg class="w-14 h-14 mx-auto mb-3 opacity-30 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z" />
+          </svg>
+          <p class="text-base font-semibold text-slate-300">Explorador Multimedia Unificado</p>
+          <p class="text-xs text-slate-500 mt-1 max-w-md mx-auto">
+            Escribe el título de cualquier película o serie. El sistema buscará primero en tus discos locales y, simultáneamente, en torrents limpios de alta velocidad.
           </p>
         </div>
       )}
     </div>
   );
 }
+
