@@ -127,11 +127,10 @@ export function App() {
     <div class="min-h-full w-full max-w-full flex flex-col bg-[#090d16] text-slate-100 select-none overflow-x-hidden">
       {/* Global Low Storage Alert Banner */}
       {storageInfo && (storageInfo.is_critical || (storageInfo.is_low_space && !bannerDismissed)) && !playingMedia && (
-        <div class={`px-3 sm:px-[4vw] py-2.5 text-xs font-semibold flex items-center justify-between transition-colors z-50 w-full max-w-full ${
-          storageInfo.is_critical
-            ? 'bg-rose-600 text-white shadow-lg shadow-rose-950/40'
-            : 'bg-amber-500 text-slate-950 shadow-md'
-        }`}>
+        <div class={`px-3 sm:px-[4vw] py-2.5 text-xs font-semibold flex items-center justify-between transition-colors z-50 w-full max-w-full ${storageInfo.is_critical
+          ? 'bg-rose-600 text-white shadow-lg shadow-rose-950/40'
+          : 'bg-amber-500 text-slate-950 shadow-md'
+          }`}>
           <div class="flex items-center gap-2">
             <span class="text-base">{storageInfo.is_critical ? '🚨' : '⚠️'}</span>
             <span>{storageInfo.warning_message}</span>

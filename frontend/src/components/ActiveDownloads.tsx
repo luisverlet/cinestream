@@ -113,25 +113,23 @@ export function ActiveDownloads({ onRefresh, onPlayMedia, storageInfo }: ActiveD
       {storageInfo && (
         <div class="my-6 p-4 rounded-2xl bg-slate-900/80 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div class="flex items-center gap-3">
-            <div class={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-lg ${
-              storageInfo.is_critical
-                ? 'bg-rose-500/20 text-rose-400'
-                : storageInfo.is_low_space
+            <div class={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-lg ${storageInfo.is_critical
+              ? 'bg-rose-500/20 text-rose-400'
+              : storageInfo.is_low_space
                 ? 'bg-amber-500/20 text-amber-400'
                 : 'bg-emerald-500/20 text-emerald-400'
-            }`}>
+              }`}>
               {storageInfo.is_critical ? '⚠️' : storageInfo.is_low_space ? '⚠️' : '💾'}
             </div>
             <div>
               <div class="flex items-center gap-2">
                 <h4 class="text-xs sm:text-sm font-bold text-white">Almacenamiento del Servidor</h4>
-                <span class={`text-[10px] px-2 py-0.5 rounded-full font-mono font-bold ${
-                  storageInfo.is_critical
-                    ? 'bg-rose-500/20 text-rose-300'
-                    : storageInfo.is_low_space
+                <span class={`text-[10px] px-2 py-0.5 rounded-full font-mono font-bold ${storageInfo.is_critical
+                  ? 'bg-rose-500/20 text-rose-300'
+                  : storageInfo.is_low_space
                     ? 'bg-amber-500/20 text-amber-300'
                     : 'bg-emerald-500/20 text-emerald-300'
-                }`}>
+                  }`}>
                   {storageInfo.free_gb} GB libres
                 </span>
               </div>
@@ -144,13 +142,12 @@ export function ActiveDownloads({ onRefresh, onPlayMedia, storageInfo }: ActiveD
           <div class="sm:w-48 flex flex-col gap-1">
             <div class="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden">
               <div
-                class={`h-full rounded-full transition-all duration-500 ${
-                  storageInfo.is_critical
-                    ? 'bg-rose-500'
-                    : storageInfo.is_low_space
+                class={`h-full rounded-full transition-all duration-500 ${storageInfo.is_critical
+                  ? 'bg-rose-500'
+                  : storageInfo.is_low_space
                     ? 'bg-amber-500'
                     : 'bg-emerald-500'
-                }`}
+                  }`}
                 style={{ width: `${storageInfo.used_percentage}%` }}
               />
             </div>
@@ -197,13 +194,12 @@ export function ActiveDownloads({ onRefresh, onPlayMedia, storageInfo }: ActiveD
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
                   <div class="flex items-center gap-2.5 min-w-0 flex-1">
                     <span
-                      class={`w-2.5 h-2.5 rounded-full flex-none ${
-                        isFinished
-                          ? 'bg-emerald-400'
-                          : isPaused
+                      class={`w-2.5 h-2.5 rounded-full flex-none ${isFinished
+                        ? 'bg-emerald-400'
+                        : isPaused
                           ? 'bg-amber-400'
                           : 'bg-cyan-400 animate-pulse'
-                      }`}
+                        }`}
                     />
                     <h3 class="text-xs sm:text-base font-bold text-white break-words line-clamp-2" title={t.name}>
                       {t.name}
@@ -242,13 +238,12 @@ export function ActiveDownloads({ onRefresh, onPlayMedia, storageInfo }: ActiveD
                 {/* Progress bar */}
                 <div class="mt-3.5 w-full bg-slate-800 h-2.5 rounded-full overflow-hidden">
                   <div
-                    class={`h-full rounded-full transition-all duration-300 ${
-                      isFinished
-                        ? 'bg-emerald-500'
-                        : isPaused
+                    class={`h-full rounded-full transition-all duration-300 ${isFinished
+                      ? 'bg-emerald-500'
+                      : isPaused
                         ? 'bg-amber-500'
                         : 'bg-gradient-to-r from-emerald-500 to-teal-400'
-                    }`}
+                      }`}
                     style={{ width: `${t.progress}%` }}
                   />
                 </div>

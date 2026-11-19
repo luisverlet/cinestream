@@ -24,9 +24,8 @@ export function MediaCard({ item, onSelect, aspect = 'poster' }: MediaCardProps)
           onSelect(item);
         }
       }}
-      class={`group relative rounded-md overflow-hidden cursor-pointer bg-[#141d27] border border-[#243547] transition-all duration-150 ease-out outline-none select-none w-full ${
-        isWide ? 'aspect-video md:w-80 md:flex-none' : 'aspect-[2/3] md:w-48 md:flex-none'
-      } hover:border-[#66c0f4] hover:scale-[1.02] focus:border-[#66c0f4] focus:scale-[1.02] focus:z-20`}
+      class={`group relative rounded-md overflow-hidden cursor-pointer bg-[#141d27] border border-[#243547] transition-all duration-150 ease-out outline-none select-none w-full ${isWide ? 'aspect-video md:w-80 md:flex-none' : 'aspect-[2/3] md:w-48 md:flex-none'
+        } hover:border-[#66c0f4] hover:scale-[1.02] focus:border-[#66c0f4] focus:scale-[1.02] focus:z-20`}
     >
       {/* Poster / Backdrop Image */}
       {imageUrl ? (

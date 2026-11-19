@@ -63,11 +63,10 @@ export function Navbar({ currentView, onNavigate, onLogout, activeDownloads, sto
           <button
             data-nav="item"
             onClick={() => handleNavClick('home')}
-            class={`px-3 py-1.5 rounded text-xs md:text-sm font-semibold transition-all duration-150 cursor-pointer border ${
-              currentView === 'home'
-                ? 'bg-[#1b2838] text-cyan-300 border-[#384b61] font-bold'
-                : 'text-slate-300 hover:text-white hover:bg-[#141e2b] border-transparent'
-            }`}
+            class={`px-3 py-1.5 rounded text-xs md:text-sm font-semibold transition-all duration-150 cursor-pointer border ${currentView === 'home'
+              ? 'bg-[#1b2838] text-cyan-300 border-[#384b61] font-bold'
+              : 'text-slate-300 hover:text-white hover:bg-[#141e2b] border-transparent'
+              }`}
           >
             Biblioteca
           </button>
@@ -76,11 +75,10 @@ export function Navbar({ currentView, onNavigate, onLogout, activeDownloads, sto
           <button
             data-nav="item"
             onClick={() => handleNavClick('top15')}
-            class={`px-3 py-1.5 rounded text-xs md:text-sm font-semibold transition-all duration-150 flex items-center gap-1.5 cursor-pointer border ${
-              currentView === 'top15'
-                ? 'bg-[#242618] text-amber-300 border-amber-600/50 font-bold'
-                : 'text-amber-300 hover:text-white hover:bg-[#141e2b] border-transparent'
-            }`}
+            class={`px-3 py-1.5 rounded text-xs md:text-sm font-semibold transition-all duration-150 flex items-center gap-1.5 cursor-pointer border ${currentView === 'top15'
+              ? 'bg-[#242618] text-amber-300 border-amber-600/50 font-bold'
+              : 'text-amber-300 hover:text-white hover:bg-[#141e2b] border-transparent'
+              }`}
             title="Top 15 mejores películas por género y subgénero"
           >
             <span class="text-xs">⭐</span>
@@ -92,11 +90,10 @@ export function Navbar({ currentView, onNavigate, onLogout, activeDownloads, sto
           <button
             data-nav="item"
             onClick={() => handleNavClick('watchlist')}
-            class={`px-3 py-1.5 rounded text-xs md:text-sm font-semibold transition-all duration-150 flex items-center gap-1.5 cursor-pointer border ${
-              currentView === 'watchlist'
-                ? 'bg-[#251a30] text-purple-300 border-purple-500/50 font-bold'
-                : 'text-purple-300 hover:text-white hover:bg-[#141e2b] border-transparent'
-            }`}
+            class={`px-3 py-1.5 rounded text-xs md:text-sm font-semibold transition-all duration-150 flex items-center gap-1.5 cursor-pointer border ${currentView === 'watchlist'
+              ? 'bg-[#251a30] text-purple-300 border-purple-500/50 font-bold'
+              : 'text-purple-300 hover:text-white hover:bg-[#141e2b] border-transparent'
+              }`}
             title="Películas y series por ver y vistas (Multi-usuario)"
           >
             <span class="text-xs">🔖</span>
@@ -107,11 +104,10 @@ export function Navbar({ currentView, onNavigate, onLogout, activeDownloads, sto
           <button
             data-nav="item"
             onClick={() => handleNavClick('search')}
-            class={`px-3 py-1.5 rounded text-xs md:text-sm font-semibold transition-all duration-150 flex items-center gap-1.5 cursor-pointer border ${
-              currentView === 'search'
-                ? 'bg-[#1b2838] text-cyan-300 border-[#384b61] font-bold'
-                : 'text-slate-300 hover:text-white hover:bg-[#141e2b] border-transparent'
-            }`}
+            class={`px-3 py-1.5 rounded text-xs md:text-sm font-semibold transition-all duration-150 flex items-center gap-1.5 cursor-pointer border ${currentView === 'search'
+              ? 'bg-[#1b2838] text-cyan-300 border-[#384b61] font-bold'
+              : 'text-slate-300 hover:text-white hover:bg-[#141e2b] border-transparent'
+              }`}
           >
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -124,11 +120,10 @@ export function Navbar({ currentView, onNavigate, onLogout, activeDownloads, sto
           <button
             data-nav="item"
             onClick={() => handleNavClick('downloads')}
-            class={`relative px-3 py-1.5 rounded text-xs md:text-sm font-semibold transition-all duration-150 flex items-center gap-1.5 cursor-pointer border ${
-              currentView === 'downloads'
-                ? 'bg-[#1b2838] text-cyan-300 border-[#384b61] font-bold'
-                : 'text-slate-300 hover:text-white hover:bg-[#141e2b] border-transparent'
-            }`}
+            class={`relative px-3 py-1.5 rounded text-xs md:text-sm font-semibold transition-all duration-150 flex items-center gap-1.5 cursor-pointer border ${currentView === 'downloads'
+              ? 'bg-[#1b2838] text-cyan-300 border-[#384b61] font-bold'
+              : 'text-slate-300 hover:text-white hover:bg-[#141e2b] border-transparent'
+              }`}
           >
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -144,10 +139,9 @@ export function Navbar({ currentView, onNavigate, onLogout, activeDownloads, sto
           {/* Storage Badge */}
           {storageInfo && (
             <div
-              class={`items-center gap-1 px-2.5 py-1 rounded text-xs font-mono font-medium border ${
-                storageInfo.is_critical
-                  ? 'flex bg-rose-950/60 text-rose-300 border-rose-700/60'
-                  : storageInfo.is_low_space
+              class={`items-center gap-1 px-2.5 py-1 rounded text-xs font-mono font-medium border ${storageInfo.is_critical
+                ? 'flex bg-rose-950/60 text-rose-300 border-rose-700/60'
+                : storageInfo.is_low_space
                   ? 'flex bg-amber-950/60 text-amber-300 border-amber-700/60'
                   : 'hidden xl:flex bg-[#141d27] text-slate-400 border-[#243547]'
                 }`}
@@ -200,11 +194,10 @@ export function Navbar({ currentView, onNavigate, onLogout, activeDownloads, sto
           <button
             data-nav="item"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            class={`w-9 h-9 rounded flex items-center justify-center transition-colors cursor-pointer border ${
-              isMobileMenuOpen
-                ? 'bg-[#1b2838] text-cyan-300 border-[#384b61]'
-                : 'bg-[#141d27] text-slate-300 border-[#243547] hover:bg-[#1a2533]'
-            }`}
+            class={`w-9 h-9 rounded flex items-center justify-center transition-colors cursor-pointer border ${isMobileMenuOpen
+              ? 'bg-[#1b2838] text-cyan-300 border-[#384b61]'
+              : 'bg-[#141d27] text-slate-300 border-[#243547] hover:bg-[#1a2533]'
+              }`}
             aria-label={isMobileMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
             aria-expanded={isMobileMenuOpen}
           >
@@ -240,11 +233,10 @@ export function Navbar({ currentView, onNavigate, onLogout, activeDownloads, sto
             <button
               data-nav="item"
               onClick={() => handleNavClick('home')}
-              class={`w-full p-2.5 rounded flex items-center justify-between text-left transition-colors cursor-pointer border ${
-                currentView === 'home'
-                  ? 'bg-[#1b2838] text-cyan-300 font-bold border-[#384b61]'
-                  : 'bg-[#141d27] text-white border-[#243547] hover:bg-[#1a2533]'
-              }`}
+              class={`w-full p-2.5 rounded flex items-center justify-between text-left transition-colors cursor-pointer border ${currentView === 'home'
+                ? 'bg-[#1b2838] text-cyan-300 font-bold border-[#384b61]'
+                : 'bg-[#141d27] text-white border-[#243547] hover:bg-[#1a2533]'
+                }`}
             >
               <div class="flex items-center gap-2.5">
                 <div class="w-8 h-8 rounded bg-[#1a2533] border border-[#2d3e52] flex items-center justify-center text-sm">
@@ -262,11 +254,10 @@ export function Navbar({ currentView, onNavigate, onLogout, activeDownloads, sto
             <button
               data-nav="item"
               onClick={() => handleNavClick('top15')}
-              class={`w-full p-2.5 rounded flex items-center justify-between text-left transition-colors cursor-pointer border ${
-                currentView === 'top15'
-                  ? 'bg-[#242618] text-amber-300 font-bold border-amber-600/50'
-                  : 'bg-[#141d27] text-white border-[#243547] hover:bg-[#1a2533]'
-              }`}
+              class={`w-full p-2.5 rounded flex items-center justify-between text-left transition-colors cursor-pointer border ${currentView === 'top15'
+                ? 'bg-[#242618] text-amber-300 font-bold border-amber-600/50'
+                : 'bg-[#141d27] text-white border-[#243547] hover:bg-[#1a2533]'
+                }`}
             >
               <div class="flex items-center gap-2.5">
                 <div class="w-8 h-8 rounded bg-[#1a2533] border border-[#2d3e52] flex items-center justify-center text-sm text-amber-300">
@@ -286,11 +277,10 @@ export function Navbar({ currentView, onNavigate, onLogout, activeDownloads, sto
             <button
               data-nav="item"
               onClick={() => handleNavClick('watchlist')}
-              class={`w-full p-2.5 rounded flex items-center justify-between text-left transition-colors cursor-pointer border ${
-                currentView === 'watchlist'
-                  ? 'bg-[#251a30] text-purple-300 font-bold border-purple-500/50'
-                  : 'bg-[#141d27] text-white border-[#243547] hover:bg-[#1a2533]'
-              }`}
+              class={`w-full p-2.5 rounded flex items-center justify-between text-left transition-colors cursor-pointer border ${currentView === 'watchlist'
+                ? 'bg-[#251a30] text-purple-300 font-bold border-purple-500/50'
+                : 'bg-[#141d27] text-white border-[#243547] hover:bg-[#1a2533]'
+                }`}
             >
               <div class="flex items-center gap-2.5">
                 <div class="w-8 h-8 rounded bg-[#1a2533] border border-[#2d3e52] flex items-center justify-center text-sm text-purple-300">
@@ -313,11 +303,10 @@ export function Navbar({ currentView, onNavigate, onLogout, activeDownloads, sto
             <button
               data-nav="item"
               onClick={() => handleNavClick('search')}
-              class={`w-full p-2.5 rounded flex items-center justify-between text-left transition-colors cursor-pointer border ${
-                currentView === 'search'
-                  ? 'bg-[#1b2838] text-cyan-300 font-bold border-[#384b61]'
-                  : 'bg-[#141d27] text-white border-[#243547] hover:bg-[#1a2533]'
-              }`}
+              class={`w-full p-2.5 rounded flex items-center justify-between text-left transition-colors cursor-pointer border ${currentView === 'search'
+                ? 'bg-[#1b2838] text-cyan-300 font-bold border-[#384b61]'
+                : 'bg-[#141d27] text-white border-[#243547] hover:bg-[#1a2533]'
+                }`}
             >
               <div class="flex items-center gap-2.5">
                 <div class="w-8 h-8 rounded bg-[#1a2533] border border-[#2d3e52] flex items-center justify-center text-sm text-cyan-400">
@@ -335,11 +324,10 @@ export function Navbar({ currentView, onNavigate, onLogout, activeDownloads, sto
             <button
               data-nav="item"
               onClick={() => handleNavClick('downloads')}
-              class={`w-full p-2.5 rounded flex items-center justify-between text-left transition-colors cursor-pointer border ${
-                currentView === 'downloads'
-                  ? 'bg-[#1b2838] text-cyan-300 font-bold border-[#384b61]'
-                  : 'bg-[#141d27] text-white border-[#243547] hover:bg-[#1a2533]'
-              }`}
+              class={`w-full p-2.5 rounded flex items-center justify-between text-left transition-colors cursor-pointer border ${currentView === 'downloads'
+                ? 'bg-[#1b2838] text-cyan-300 font-bold border-[#384b61]'
+                : 'bg-[#141d27] text-white border-[#243547] hover:bg-[#1a2533]'
+                }`}
             >
               <div class="flex items-center gap-2.5">
                 <div class="w-8 h-8 rounded bg-[#1a2533] border border-[#2d3e52] flex items-center justify-center text-sm text-cyan-400">
@@ -376,10 +364,9 @@ export function Navbar({ currentView, onNavigate, onLogout, activeDownloads, sto
                 </div>
                 <div class="w-full h-1 bg-[#1e2a38] rounded-sm overflow-hidden">
                   <div
-                    class={`h-full rounded-sm ${
-                      storageInfo.is_critical
-                        ? 'bg-rose-500'
-                        : storageInfo.is_low_space
+                    class={`h-full rounded-sm ${storageInfo.is_critical
+                      ? 'bg-rose-500'
+                      : storageInfo.is_low_space
                         ? 'bg-amber-400'
                         : 'bg-cyan-400'
                       }`}

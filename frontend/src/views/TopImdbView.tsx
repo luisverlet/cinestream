@@ -184,11 +184,10 @@ export function TopImdbView({ onSearchMovie }: TopImdbViewProps) {
               key={genre.id}
               data-nav="item"
               onClick={() => handleSelectGenre(genre.id)}
-              class={`flex-none px-3.5 sm:px-4 py-1.5 sm:py-2 rounded text-xs sm:text-sm font-semibold flex items-center gap-2 transition-all duration-150 cursor-pointer border ${
-                isActive
-                  ? 'bg-[#1b2838] text-cyan-300 border-[#384b61] font-bold'
-                  : 'bg-[#121922] hover:bg-[#16212e] text-slate-300 border-[#1f2b38]'
-              }`}
+              class={`flex-none px-3.5 sm:px-4 py-1.5 sm:py-2 rounded text-xs sm:text-sm font-semibold flex items-center gap-2 transition-all duration-150 cursor-pointer border ${isActive
+                ? 'bg-[#1b2838] text-cyan-300 border-[#384b61] font-bold'
+                : 'bg-[#121922] hover:bg-[#16212e] text-slate-300 border-[#1f2b38]'
+                }`}
             >
               <span class="text-sm sm:text-base">{genre.icon}</span>
               <span>{genre.name}</span>
@@ -213,11 +212,10 @@ export function TopImdbView({ onSearchMovie }: TopImdbViewProps) {
                   setSelectedSubgenreId(sub.id);
                   setExpandedMovieIndex(null);
                 }}
-                class={`px-3 py-1 rounded text-xs font-semibold flex items-center gap-1.5 transition-all duration-150 cursor-pointer border ${
-                  isSubActive
-                    ? 'bg-[#1f2f42] text-cyan-300 font-bold border-cyan-600/60'
-                    : 'bg-[#16212e] text-slate-400 hover:text-slate-200 border-[#243447] hover:bg-[#1b2838]'
-                }`}
+                class={`px-3 py-1 rounded text-xs font-semibold flex items-center gap-1.5 transition-all duration-150 cursor-pointer border ${isSubActive
+                  ? 'bg-[#1f2f42] text-cyan-300 font-bold border-cyan-600/60'
+                  : 'bg-[#16212e] text-slate-400 hover:text-slate-200 border-[#243447] hover:bg-[#1b2838]'
+                  }`}
               >
                 <span>{sub.icon}</span>
                 <span>{sub.name}</span>
@@ -265,10 +263,9 @@ export function TopImdbView({ onSearchMovie }: TopImdbViewProps) {
           return (
             <div
               key={movie.rank}
-              class={`group relative bg-[#141d27] border rounded-md p-3.5 sm:p-4 transition-all duration-150 flex flex-col justify-between ${
-                isWatched
-                  ? 'border-emerald-600/50 bg-[#121f1d]'
-                  : isPlanToWatch
+              class={`group relative bg-[#141d27] border rounded-md p-3.5 sm:p-4 transition-all duration-150 flex flex-col justify-between ${isWatched
+                ? 'border-emerald-600/50 bg-[#121f1d]'
+                : isPlanToWatch
                   ? 'border-purple-600/50 bg-[#1a1424]'
                   : 'border-[#243547] hover:border-[#384b61]'
                 }`}

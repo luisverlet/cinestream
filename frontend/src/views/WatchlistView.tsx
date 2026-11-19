@@ -343,22 +343,20 @@ export function WatchlistView({ onSearchMovie }: WatchlistViewProps) {
             <button
               data-nav="item"
               onClick={() => selectActiveUser('Nano')}
-              class={`px-2.5 py-1 rounded text-xs font-bold transition-colors cursor-pointer ${
-                activeUser.toLowerCase() === 'nano'
-                  ? 'bg-[#251a30] text-purple-300 border border-purple-500/60 font-bold'
-                  : 'text-slate-400 hover:text-white'
-              }`}
+              class={`px-2.5 py-1 rounded text-xs font-bold transition-colors cursor-pointer ${activeUser.toLowerCase() === 'nano'
+                ? 'bg-[#251a30] text-purple-300 border border-purple-500/60 font-bold'
+                : 'text-slate-400 hover:text-white'
+                }`}
             >
               Nano
             </button>
             <button
               data-nav="item"
               onClick={() => selectActiveUser('Vane')}
-              class={`px-2.5 py-1 rounded text-xs font-bold transition-colors cursor-pointer ${
-                activeUser.toLowerCase() === 'vane'
-                  ? 'bg-[#2c1422] text-pink-300 border border-pink-500/60 font-bold'
-                  : 'text-slate-400 hover:text-white'
-              }`}
+              class={`px-2.5 py-1 rounded text-xs font-bold transition-colors cursor-pointer ${activeUser.toLowerCase() === 'vane'
+                ? 'bg-[#2c1422] text-pink-300 border border-pink-500/60 font-bold'
+                : 'text-slate-400 hover:text-white'
+                }`}
             >
               Vane
             </button>
@@ -382,11 +380,10 @@ export function WatchlistView({ onSearchMovie }: WatchlistViewProps) {
         <button
           data-nav="item"
           onClick={() => setActiveTab('completed')}
-          class={`px-3.5 py-1.5 rounded text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer border ${
-            activeTab === 'completed'
-              ? 'bg-[#13221b] text-emerald-300 border-emerald-600/60'
-              : 'bg-[#141d27] hover:bg-[#192433] text-slate-400 border-[#243547]'
-          }`}
+          class={`px-3.5 py-1.5 rounded text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer border ${activeTab === 'completed'
+            ? 'bg-[#13221b] text-emerald-300 border-emerald-600/60'
+            : 'bg-[#141d27] hover:bg-[#192433] text-slate-400 border-[#243547]'
+            }`}
         >
           <span>✓ Vistas</span>
           <span class="px-1.5 py-0.2 rounded bg-black/40 text-[11px] font-mono">
@@ -397,11 +394,10 @@ export function WatchlistView({ onSearchMovie }: WatchlistViewProps) {
         <button
           data-nav="item"
           onClick={() => setActiveTab('plan_to_watch')}
-          class={`px-3.5 py-1.5 rounded text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer border ${
-            activeTab === 'plan_to_watch'
-              ? 'bg-[#251a30] text-purple-300 border-purple-600/60'
-              : 'bg-[#141d27] hover:bg-[#192433] text-slate-400 border-[#243547]'
-          }`}
+          class={`px-3.5 py-1.5 rounded text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer border ${activeTab === 'plan_to_watch'
+            ? 'bg-[#251a30] text-purple-300 border-purple-600/60'
+            : 'bg-[#141d27] hover:bg-[#192433] text-slate-400 border-[#243547]'
+            }`}
         >
           <span>📌 Por Ver</span>
           <span class="px-1.5 py-0.2 rounded bg-black/40 text-[11px] font-mono">
@@ -422,11 +418,10 @@ export function WatchlistView({ onSearchMovie }: WatchlistViewProps) {
                 key={t}
                 data-nav="item"
                 onClick={() => setSelectedType(t)}
-                class={`px-3 py-1 rounded text-xs font-semibold transition-colors cursor-pointer border ${
-                  isSelected
-                    ? 'bg-[#1b2838] text-cyan-300 font-bold border-[#384b61]'
-                    : 'bg-[#141d27] hover:bg-[#192433] text-slate-400 border-[#243547]'
-                }`}
+                class={`px-3 py-1 rounded text-xs font-semibold transition-colors cursor-pointer border ${isSelected
+                  ? 'bg-[#1b2838] text-cyan-300 font-bold border-[#384b61]'
+                  : 'bg-[#141d27] hover:bg-[#192433] text-slate-400 border-[#243547]'
+                  }`}
               >
                 {labels[t]}
               </button>
