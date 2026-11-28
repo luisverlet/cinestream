@@ -550,6 +550,46 @@ class JellyfinService:
             logger.warning(f"Failed to trigger library refresh: {e}")
             return False
 
+    async def auto_identify_movie(self, item_id: str, name: str, year: Optional[int] = None) -> bool:
+        """
+        Attempts to automatically identify an unmatched movie in Jellyfin by clean title & year,
+        applying TMDb/IMDb metadata, official poster, and Spanish title.
+        """
+        import re
+        clean = re.sub(r'^(?:https?://)?(?:www\.)?[a-zA-Z0-9\-_]+\.[a-zA-Z]{2,}(?:\s*[-_–—]\s*)?', '', name, flags=re.IGNORECASE)
+        clean = re.sub(r'\[[^\]]*\]|\([^\)]*\)', ' ', clean)
+        clean = re.sub(r'[\._\-]', ' ', clean)
+        clean = re.sub(
+            r'\b(2160p|1080p|720p|480p|webrip|web-dl|bluray|brrip|bdrip|x264|x265|hevc|ddp5|ddp|aac2|aac|ac3|10bit|neonoir|yify|yts|am|rarbg|kitsune|remux|repack)\b.*$',
+            '',
+            clean,
+            flags=re.IGNORECASE
+        ).strip()
+        if not clean:
+            return False
+
+        headers = self._get_auth_header()
+        try:
+            async with httpx.AsyncClient(timeout=10.0, follow_redirects=True) as client:
+                url = f"{self.base_url}/Items/RemoteSearch/Movie"
+                payload = {
+                    "SearchInfo": {"Name": clean, "Year": year} if year else {"Name": clean},
+                    "ItemId": item_id
+                }
+                resp = await client.post(url, json=payload, headers=headers)
+                if resp.status_code == 200:
+                    candidates = resp.json()
+                    if candidates:
+                        best = candidates[0]
+                        apply_url = f"{self.base_url}/Items/RemoteSearch/Apply/{item_id}?ReplaceAllImages=true"
+                        a_resp = await client.post(apply_url, json=best, headers=headers)
+                        if a_resp.status_code in [200, 204]:
+                            logger.info(f"Auto-identified movie '{name}' -> '{best.get('Name')}' ({best.get('ProductionYear')})")
+                            return True
+        except Exception as e:
+            logger.warning(f"Error auto-identifying movie {item_id}: {e}")
+        return False
+
     async def find_media_for_torrent(
         self,
         torrent_name: str,
@@ -601,9 +641,11 @@ class JellyfinService:
         year_match = re.search(r'\b(19\d{2}|20\d{2})\b', sample_text)
         target_year = year_match.group(1) if year_match else None
 
-        clean_name = re.sub(r'[\._\-]', ' ', torrent_name)
+        clean_name = re.sub(r'^(?:https?://)?(?:www\.)?[a-zA-Z0-9\-_]+\.[a-zA-Z]{2,}(?:\s*[-_–—]\s*)?', '', torrent_name, flags=re.IGNORECASE)
+        clean_name = re.sub(r'\[[^\]]*\]|\([^\)]*\)', ' ', clean_name)
+        clean_name = re.sub(r'[\._\-]', ' ', clean_name)
         clean_name = re.sub(
-            r'\b(2160p|1080p|720p|480p|webrip|web-dl|bluray|brrip|bdrip|x264|x265|hevc|ddp5|ddp|aac|ac3|10bit|neonoir|yify|yts|am|rarbg)\b.*$',
+            r'\b(2160p|1080p|720p|480p|webrip|web-dl|bluray|brrip|bdrip|x264|x265|hevc|ddp5|ddp|aac2|aac|ac3|10bit|neonoir|yify|yts|am|rarbg|kitsune|remux|repack)\b.*$',
             '',
             clean_name,
             flags=re.IGNORECASE

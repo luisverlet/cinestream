@@ -105,12 +105,14 @@ class SubtitleService:
         if imdb_id:
             digits = re.sub(r'^[^\d]*', '', imdb_id)
             if digits:
-                search_urls.append(f"https://api.opensubtitles.com/api/v1/subtitles?imdb_id={digits}&languages=es")
+                search_urls.append(f"https://api.opensubtitles.com/api/v1/subtitles?imdb_id={digits}&languages=es,spa")
 
-        # 2. Search by title and year
-        clean_title = re.sub(r'[\._\-]', ' ', title)
+        # 2. Search by title and year (stripping any web domains like www.torrenting.com, trackers or release tags)
+        clean_title = re.sub(r'^(?:https?://)?(?:www\.)?[a-zA-Z0-9\-_]+\.[a-zA-Z]{2,}(?:\s*[-_–—]\s*)?', '', title, flags=re.IGNORECASE)
+        clean_title = re.sub(r'\[[^\]]*\]|\([^\)]*\)', ' ', clean_title)
+        clean_title = re.sub(r'[\._\-]', ' ', clean_title)
         clean_title = re.sub(
-            r'\b(2160p|1080p|720p|480p|webrip|web-dl|bluray|brrip|bdrip|x264|x265|hevc|rarbg|yts|yify)\b.*$',
+            r'\b(2160p|1080p|720p|480p|webrip|web-dl|bluray|brrip|bdrip|x264|x265|hevc|rarbg|yts|yify|aac2|aac|ddp|kitsune|remux|repack)\b.*$',
             '',
             clean_title,
             flags=re.IGNORECASE
@@ -118,13 +120,13 @@ class SubtitleService:
 
         q_str = urllib.parse.quote(clean_title)
         if year:
-            search_urls.append(f"https://api.opensubtitles.com/api/v1/subtitles?query={q_str}&year={year}&languages=es")
-        search_urls.append(f"https://api.opensubtitles.com/api/v1/subtitles?query={q_str}&languages=es")
+            search_urls.append(f"https://api.opensubtitles.com/api/v1/subtitles?query={q_str}&year={year}&languages=es,spa")
+        search_urls.append(f"https://api.opensubtitles.com/api/v1/subtitles?query={q_str}&languages=es,spa")
 
         sub_items = []
         for url in search_urls:
             try:
-                resp = await client.get(url, headers=headers, timeout=10.0)
+                resp = await client.get(url, headers=headers, timeout=10.0, follow_redirects=True)
                 if resp.status_code == 200:
                     data = resp.json()
                     items = data.get("data", [])
@@ -173,7 +175,7 @@ class SubtitleService:
                 if dl_resp.status_code == 200:
                     link = dl_resp.json().get("link")
                     if link:
-                        file_resp = await client.get(link, headers={"User-Agent": "Bazarr v1.4.3"}, timeout=15.0)
+                        file_resp = await client.get(link, headers={"User-Agent": "Bazarr v1.4.3"}, timeout=15.0, follow_redirects=True)
                         if file_resp.status_code == 200 and len(file_resp.content) > 500:
                             srt_text = self._decode_srt_text(file_resp.content)
                             logger.info(f"Downloaded Spanish subtitle from OpenSubtitles.com ({len(srt_text)} chars)")
@@ -313,7 +315,7 @@ class SubtitleService:
         srt_content_bytes = None
         release_filename = os.path.basename(file_path) if file_path else None
 
-        async with httpx.AsyncClient(timeout=18.0) as client:
+        async with httpx.AsyncClient(timeout=18.0, follow_redirects=True) as client:
             # 3. Source 1: OpenSubtitles.com API (Most comprehensive & reliable)
             try:
                 os_bytes = await self._fetch_from_opensubtitles(client, imdb_id, title, year, release_filename)
@@ -440,7 +442,7 @@ class SubtitleService:
             ).strip()
 
             logger.info(f"Auto-downloading Spanish subtitles for finished torrent: {clean_title} ({year})")
-            async with httpx.AsyncClient(timeout=18.0) as client:
+            async with httpx.AsyncClient(timeout=18.0, follow_redirects=True) as client:
                 srt_bytes = await self._fetch_from_opensubtitles(
                     client, None, clean_title, year, filename_only
                 )
